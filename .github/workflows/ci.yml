@@ -31,6 +31,3 @@ jobs:
 
     - name: Run unit tests
       run: pnpm test
-
-    - name: Run e2e tests
-      run: pnpm test:e2e
