@@ -8,7 +8,7 @@ import { UsersDto } from './users.dto';
 export class UsersService {
   constructor(@InjectModel(Users.name) private userModel: Model<Users>) {}
 
-  create(usersDto: UsersDto): Promise<Users> {
+  create(usersDto: Partial<UsersDto>): Promise<Users> {
     return this.userModel.create(usersDto);
   }
 

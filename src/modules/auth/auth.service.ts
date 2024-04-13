@@ -102,7 +102,7 @@ export class AuthService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    if (bcrypt.compareSync(oldPassword, entity.password)) {
+    if (!bcrypt.compareSync(oldPassword, entity.password)) {
       throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
     }
 
@@ -129,7 +129,15 @@ export class AuthService {
     return result;
   }
 
-  async register(usersDto: UsersDto) {
+  async register(usersDto: Partial<UsersDto>) {
+    const entity = await this.usersService.findOne({
+      username: usersDto.username,
+    });
+
+    if (entity) {
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
+
     const hashedPassword = bcrypt.hashSync(usersDto.password, 10);
     const user = await this.usersService.create({
       ...usersDto,
@@ -137,5 +145,9 @@ export class AuthService {
     });
 
     return this.login({ userId: user._id, username: user.username });
+  }
+
+  deleteUser(userAccountDto: UserAccountDto) {
+    return this.usersService.delete(userAccountDto.userId);
   }
 }

@@ -7,14 +7,17 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { LoggerMiddleware } from '@/middlewares/logger';
 
+const envs = {
+  production: '.env.production',
+  development: '.env.development',
+  test: '.env.test',
+};
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV === 'production'
-          ? '.env.production'
-          : '.env.development',
+      envFilePath: envs[process.env.NODE_ENV || 'development'],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],

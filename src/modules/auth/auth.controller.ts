@@ -13,6 +13,7 @@ import {
   Get,
   ValidationPipe,
   UsePipes,
+  Delete,
 } from '@nestjs/common';
 
 import {
@@ -36,7 +37,7 @@ export class AuthController {
   @Public()
   @Post('register')
   @UsePipes(new ValidationPipe({ skipMissingProperties: true }))
-  register(@Body() usersDto: UsersDto) {
+  register(@Body() usersDto: Partial<UsersDto>) {
     return this.authService.register(usersDto);
   }
 
@@ -53,13 +54,18 @@ export class AuthController {
 
   @Put('revise-password')
   @UsePipes(new ValidationPipe())
-  revisePassword(
+  async revisePassword(
     @Body() revisePasswordDto: RevisePasswordDto,
     @Req() req: Request,
   ) {
-    return this.authService.revisePassword(
+    await this.authService.revisePassword(
       revisePasswordDto,
       req.user as UserAccountDto,
     );
+  }
+
+  @Delete('delete-user')
+  async deleteUser(@Req() req: Request) {
+    return this.authService.deleteUser(req.user);
   }
 }
