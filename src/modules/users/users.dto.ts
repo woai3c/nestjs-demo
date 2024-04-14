@@ -6,8 +6,8 @@ import {
   Matches,
 } from 'class-validator';
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/;
-const passwordErrorMessage =
+export const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/;
+export const passwordErrorMessage =
   'Password must be 8-20 characters, include at least one uppercase letter, one lowercase letter, one number, and can only contain letters and numbers.';
 
 export class UsersDto {

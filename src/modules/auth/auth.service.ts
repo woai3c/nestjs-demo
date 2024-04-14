@@ -6,6 +6,8 @@ import {
   RevisePasswordDto,
   UserAccountDto,
   UsersDto,
+  passwordErrorMessage,
+  passwordRegex,
 } from '../users/users.dto';
 import * as bcrypt from 'bcrypt';
 import {
@@ -133,6 +135,10 @@ export class AuthService {
     const entity = await this.usersService.findOne({
       username: usersDto.username,
     });
+
+    if (!passwordRegex.test(usersDto.password)) {
+      throw new HttpException(passwordErrorMessage, HttpStatus.BAD_REQUEST);
+    }
 
     if (entity) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
