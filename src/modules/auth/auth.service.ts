@@ -2,6 +2,7 @@
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { Users } from '../users/users.schema';
+import * as bcrypt from 'bcrypt';
 import {
   RevisePasswordDto,
   UserAccountDto,
@@ -9,7 +10,7 @@ import {
   passwordErrorMessage,
   passwordRegex,
 } from '../users/users.dto';
-import * as bcrypt from 'bcrypt';
+
 import {
   HttpException,
   HttpStatus,
