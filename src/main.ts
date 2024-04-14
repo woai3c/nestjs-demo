@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService: ConfigService = app.get(ConfigService);
-  const corsDomains = configService.get('NEST_CORS_DOMAINS').trim();
+  const corsDomains = configService.get('NEST_CORS_DOMAINS')?.trim();
 
   app.enableCors({
     origin: corsDomains ? corsDomains.split(',').filter(Boolean) : '*',

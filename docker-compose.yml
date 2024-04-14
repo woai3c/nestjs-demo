@@ -9,12 +9,15 @@ services:
     depends_on:
       - mongodb
     environment:
-      - DATABASE_URL=mongodb://mongodb:27017/mydatabase
+      # replace with your mongodb url
+      - NEST_MONGODB_URL=mongodb://mongodb:27017/mongodb?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.0
+      - NEST_SERVER_PORT=3000
+      # replace with your cors domains
+      - NEST_CORS_DOMAINS=http://localhost:3001,http://localhost:8080
   mongodb:
     image: mongo
     ports:
       - '27017:27017'
     volumes:
-      - mongodb_data:/data/db
-volumes:
-  mongodb_data:
+      # replace with your mongodb data path
+      - D:/software/mongodb/test:/data/db

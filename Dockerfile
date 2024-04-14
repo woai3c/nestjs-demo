@@ -1,22 +1,25 @@
-FROM node:18-alpine
+FROM node:18-alpine AS base
 
-# work directory
-WORKDIR /usr/src/app
+RUN npm i -g pnpm
 
-RUN npm install -g pnpm
+FROM base AS dependencies
 
-# copy package.json and pnpm-lock.yaml to work directory
-COPY package*.json pnpm-lock.yaml ./
-
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# copy source code to work directory
-COPY . .
+FROM base AS build
 
+WORKDIR /app
+COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
 RUN pnpm build
 
-# expose port
-EXPOSE 3000
+FROM base AS deploy
 
-# start
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+COPY --from=build /app/dist/ ./dist/
+COPY --from=build /app/node_modules ./node_modules
+
 CMD ["pnpm", "start:prod"]

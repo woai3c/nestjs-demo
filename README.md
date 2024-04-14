@@ -12,6 +12,10 @@ This is a NestJS project that uses the following technology stack:
 - [Husky](https://typicode.github.io/husky/): A tool for managing git hooks, which can automatically run lint and tests before committing code.
 - [cross-env](https://github.com/kentcdodds/cross-env): A library for setting environment variables, which can maintain consistent behavior across different operating systems.
 
+## Features
+* user module - CRUD
+* auth module - login, register, delete, token and refresh token
+
 ## Installation
 ```bash
 # if you don't have pnpm installed, you can install it with npm
@@ -45,3 +49,37 @@ $ pnpm test:e2e
 # test coverage
 $ pnpm test:cov
 ```
+
+## Docker Deployment
+When deploying the project with Docker, you need to replace the environment variables in `docker-compose.yml`:
+* `NEST_MONGODB_URL`: MongoDB connection address
+* `NEST_CORS_DOMAINS`: CORS domains
+* `NEST_SERVER_PORT`: Server port
+* `volumes`: MongoDB data path
+
+```yml
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongodb
+    environment:
+      # replace with your mongodb url
+      - NEST_MONGODB_URL=mongodb://mongodb:27017/mongodb?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.0
+      - NEST_SERVER_PORT=3000
+      # replace with your cors domains
+      - NEST_CORS_DOMAINS=http://localhost:3001,http://localhost:8080
+  mongodb:
+    image: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      # replace with your mongodb data path
+      - D:/software/mongodb/test:/data/db
+```
+Then, execute `docker-compose up -d` to deploy the project.
