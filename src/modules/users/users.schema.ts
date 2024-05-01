@@ -27,10 +27,10 @@ export class Users extends Document {
   @Prop()
   phone: string;
 
-  @Prop()
+  @Prop({ required: true })
   username: string;
 
-  @Prop()
+  @Prop({ required: true })
   password: string;
 
   @Prop()

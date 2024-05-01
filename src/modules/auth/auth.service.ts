@@ -30,13 +30,13 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<Partial<Users>> {
-    const user = await this.usersService.findOne({ username });
-    if (!user) {
+    const entity = await this.usersService.findOne({ username });
+    if (!entity) {
       throw new NotFoundException('User not found');
     }
 
-    if (user.lockUntil && user.lockUntil > Date.now()) {
-      const diffInSeconds = Math.round((user.lockUntil - Date.now()) / 1000);
+    if (entity.lockUntil && entity.lockUntil > Date.now()) {
+      const diffInSeconds = Math.round((entity.lockUntil - Date.now()) / 1000);
       let message = `The account is locked. Please try again in ${diffInSeconds} seconds.`;
       if (diffInSeconds > 60) {
         const diffInMinutes = Math.round(diffInSeconds / 60);
@@ -46,7 +46,7 @@ export class AuthService {
       throw new UnauthorizedException(message);
     }
 
-    const passwordMatch = bcrypt.compareSync(password, user.password);
+    const passwordMatch = bcrypt.compareSync(password, entity.password);
     if (!passwordMatch) {
       // $inc update to increase failedLoginAttempts
       const update = {
@@ -54,37 +54,37 @@ export class AuthService {
       };
 
       // lock account when the third try is failed
-      if (user.failedLoginAttempts + 1 >= 3) {
+      if (entity.failedLoginAttempts + 1 >= 3) {
         // $set update to lock the account for 5 minutes
         update['$set'] = { lockUntil: Date.now() + 5 * 60 * 1000 };
       }
 
-      await this.usersService.update(user._id, update);
+      await this.usersService.update(entity._id, update);
       throw new UnauthorizedException('Invalid password');
     }
 
     // if validation is sucessful, then reset failedLoginAttempts and lockUntil
     if (
-      user.failedLoginAttempts > 0 ||
-      (user.lockUntil && user.lockUntil > Date.now())
+      entity.failedLoginAttempts > 0 ||
+      (entity.lockUntil && entity.lockUntil > Date.now())
     ) {
-      await this.usersService.update(user._id, {
+      await this.usersService.update(entity._id, {
         $set: { failedLoginAttempts: 0, lockUntil: null },
       });
     }
 
-    return { userId: user._id, username } as UserAccountDto;
+    return { userId: entity._id, username } as UserAccountDto;
   }
 
   async refreshToken(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken);
-      const user = await this.usersService.findOne({
+      const entity = await this.usersService.findOne({
         username: payload.username,
       });
 
-      if (user) {
-        const newPayload = { username: user.username, userId: user._id };
+      if (entity) {
+        const newPayload = { username: entity.username, userId: entity._id };
         return {
           access_token: this.jwtService.sign(newPayload),
           refresh_token: this.jwtService.sign(newPayload, { expiresIn: '7d' }),
@@ -140,7 +140,14 @@ export class AuthService {
   }
 
   async register(usersDto: Partial<UsersDto>) {
-    const entity = await this.usersService.findOne({
+    if (!usersDto.username || !usersDto.password) {
+      throw new HttpException(
+        'Username and password are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    let entity = await this.usersService.findOne({
       username: usersDto.username,
     });
 
@@ -153,12 +160,12 @@ export class AuthService {
     }
 
     const hashedPassword = bcrypt.hashSync(usersDto.password, 10);
-    const user = await this.usersService.create({
+    entity = await this.usersService.create({
       ...usersDto,
       password: hashedPassword,
     });
 
-    return this.login({ userId: user._id, username: user.username });
+    return this.login({ userId: entity._id, username: entity.username });
   }
 
   deleteUser(userAccountDto: UserAccountDto) {

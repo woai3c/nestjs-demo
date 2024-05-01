@@ -17,6 +17,10 @@ export class UsersService {
   }
 
   findById(id: string): Promise<Users> {
+    if (!id) {
+      throw new Error('Missing required parameter id');
+    }
+
     return this.userModel.findById(id).exec();
   }
 
@@ -25,10 +29,18 @@ export class UsersService {
   }
 
   update(id: string, usersDto: Partial<UsersDto>): Promise<Users> {
+    if (!id) {
+      throw new Error('Missing required parameter id');
+    }
+
     return this.userModel.findByIdAndUpdate(id, usersDto, { new: true }).exec();
   }
 
   delete(id: string): Promise<Users> {
+    if (!id) {
+      throw new Error('Missing required parameter id');
+    }
+
     return this.userModel.findByIdAndDelete(id).exec();
   }
 }
