@@ -13,6 +13,10 @@ export class LoggerMiddleware implements NestMiddleware {
   constructor(private loggerService: LoggerService) {}
 
   use(req: Request, res: Response, next: NextFunction) {
+    if (process.env.NODE_ENV === 'test') {
+      return next();
+    }
+
     const { method, originalUrl, body, query, headers } = req;
     const userAgent = headers['user-agent'] || '';
     const requestId = headers['x-request-id'] || ''; // unique request id

@@ -1,9 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LocalStrategy } from './local.strategy';
-import { JwtStrategy } from './jwt.strategy';
-import { AuthService } from './auth.service';
-import { UserAccountDto } from '../users/users.dto';
-import { TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD } from './constants';
+import { LocalStrategy } from '@/modules/auth/local.strategy';
+import { JwtStrategy } from '@/modules/auth/jwt.strategy';
+import { AuthService } from '@/modules/auth/auth.service';
+import { UserAccountDto } from '@/modules/users/users.dto';
+import {
+  TEST_USER_ID,
+  TEST_USER_NAME,
+  TEST_USER_PASSWORD,
+} from '@/modules/auth/constants';
 
 describe('LocalStrategy', () => {
   let localStrategy: LocalStrategy;
