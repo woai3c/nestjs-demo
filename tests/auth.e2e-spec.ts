@@ -2,12 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
-import { TEST_USER_NAME, TEST_USER_PASSWORD } from '@/modules/auth/constants';
+import {
+  TEST_USER_NAME,
+  TEST_USER_NAME2,
+  TEST_USER_PASSWORD,
+} from '@/modules/auth/constants';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
-  let accessToken: string; // 用于存储获得的访问令牌
-  let refreshToken: string; // 用于存储获得的刷新令牌
+  let accessToken: string;
+  let refreshToken: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -70,7 +74,7 @@ describe('AuthController (e2e)', () => {
   it('/auth/login (POST) with invalid password', () => {
     return request(app.getHttpServer())
       .post('/auth/login')
-      .send({ username: TEST_USER_NAME, password: 'wrongpassword' })
+      .send({ username: TEST_USER_NAME, password: 'InvalidPassword' })
       .expect(401); // Expect an unauthorized error
   });
 
@@ -90,5 +94,45 @@ describe('AuthController (e2e)', () => {
   // Test delete user without authorization
   it('/auth/delete-user (DELETE) without authorization', () => {
     return request(app.getHttpServer()).delete('/auth/delete-user').expect(401); // Expect an unauthorized error
+  });
+});
+
+describe('AuthController (e2e) - Account Lock', () => {
+  it('/auth/login (POST) account lock after multiple failed attempts', async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    const app = moduleFixture.createNestApplication();
+    await app.init();
+
+    const registerResponse = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ username: TEST_USER_NAME2, password: TEST_USER_PASSWORD });
+
+    const accessToken = registerResponse.body.access_token;
+    const maxLoginAttempts = 3; // lock user when the third try is failed
+
+    for (let i = 0; i < maxLoginAttempts; i++) {
+      await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username: TEST_USER_NAME2, password: 'InvalidPassword' });
+    }
+
+    // The account is locked after the third failed login attempt
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: TEST_USER_NAME2, password: TEST_USER_PASSWORD })
+      .then((res) => {
+        expect(res.body.message).toContain(
+          'The account is locked. Please try again in 5 minutes.',
+        );
+      });
+
+    await request(app.getHttpServer())
+      .delete('/auth/delete-user')
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    await app.close();
   });
 });
