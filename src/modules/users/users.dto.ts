@@ -46,6 +46,15 @@ export class UsersDto {
     message: passwordErrorMessage,
   })
   password: string;
+
+  $inc: {
+    failedLoginAttempts: number;
+  };
+
+  $set: {
+    failedLoginAttempts: number;
+    lockUntil: null | number;
+  };
 }
 
 export class UserAccountDto {

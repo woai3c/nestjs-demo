@@ -37,9 +37,7 @@ export class AuthService {
 
     if (user.lockUntil && user.lockUntil > Date.now()) {
       const diffInSeconds = Math.round((user.lockUntil - Date.now()) / 1000);
-
       let message = `The account is locked. Please try again in ${diffInSeconds} seconds.`;
-
       if (diffInSeconds > 60) {
         const diffInMinutes = Math.round(diffInSeconds / 60);
         message = `The account is locked. Please try again in ${diffInMinutes} minutes.`;
@@ -48,22 +46,31 @@ export class AuthService {
       throw new UnauthorizedException(message);
     }
 
-    if (!bcrypt.compareSync(password, user.password)) {
-      if (
-        typeof user.failedLoginAttempts === 'undefined' ||
-        user.failedLoginAttempts >= 3
-      ) {
-        user.failedLoginAttempts = 0;
+    const passwordMatch = bcrypt.compareSync(password, user.password);
+    if (!passwordMatch) {
+      // $inc update to increase failedLoginAttempts
+      const update = {
+        $inc: { failedLoginAttempts: 1 },
+      };
+
+      // lock account when the third try is failed
+      if (user.failedLoginAttempts + 1 >= 3) {
+        // $set update to lock the account for 5 minutes
+        update['$set'] = { lockUntil: Date.now() + 5 * 60 * 1000 };
       }
 
-      user.failedLoginAttempts++;
-      // If there were 3 failed attempts, lock the account for 5 minutes.
-      if (user.failedLoginAttempts >= 3) {
-        user.lockUntil = Date.now() + 5 * 60 * 1000;
-      }
-
-      await this.usersService.update(user._id, user);
+      await this.usersService.update(user._id, update);
       throw new UnauthorizedException('Invalid password');
+    }
+
+    // if validation is sucessful, then reset failedLoginAttempts and lockUntil
+    if (
+      user.failedLoginAttempts > 0 ||
+      (user.lockUntil && user.lockUntil > Date.now())
+    ) {
+      await this.usersService.update(user._id, {
+        $set: { failedLoginAttempts: 0, lockUntil: null },
+      });
     }
 
     return { userId: user._id, username } as UserAccountDto;
