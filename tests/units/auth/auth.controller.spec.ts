@@ -16,7 +16,8 @@ import {
   TEST_USER_ID,
   TEST_USER_NAME,
   TEST_USER_PASSWORD,
-} from '@/modules/auth/constants';
+} from '@tests/constants';
+import { TOKEN_DURATION } from '@/modules/auth/constants';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -32,18 +33,18 @@ describe('AuthController', () => {
             register: jest.fn().mockResolvedValue({
               access_token: TEST_TOKEN,
               refresh_token: TEST_REFRESH_TOKEN,
-              expires_in: 7200,
+              expires_in: TOKEN_DURATION,
             }),
             login: jest.fn().mockResolvedValue({
               access_token: TEST_TOKEN,
               refresh_token: TEST_REFRESH_TOKEN,
-              expires_in: 7200,
+              expires_in: TOKEN_DURATION,
             }),
             profile: jest.fn().mockResolvedValue({ username: TEST_USER_NAME }),
             refreshToken: jest.fn().mockResolvedValue({
               access_token: TEST_NEW_TOKEN,
               refresh_token: TEST_NEW_REFRESH_TOKEN,
-              expires_in: 7200,
+              expires_in: TOKEN_DURATION,
             }),
             revisePassword: jest.fn().mockResolvedValue(true),
             deleteUser: jest.fn().mockResolvedValue(true),
@@ -65,7 +66,7 @@ describe('AuthController', () => {
     (authService.register as jest.Mock).mockResolvedValue({
       access_token: TEST_TOKEN,
       refresh_token: TEST_REFRESH_TOKEN,
-      expires_in: 7200,
+      expires_in: TOKEN_DURATION,
     });
 
     const result = await controller.register(usersDto);
@@ -83,7 +84,7 @@ describe('AuthController', () => {
     (authService.login as jest.Mock).mockResolvedValue({
       access_token: TEST_TOKEN,
       refresh_token: TEST_REFRESH_TOKEN,
-      expires_in: 7200,
+      expires_in: TOKEN_DURATION,
     });
 
     const result = await controller.login(loginDto as any);
@@ -112,7 +113,7 @@ describe('AuthController', () => {
     (authService.refreshToken as jest.Mock).mockResolvedValue({
       access_token: TEST_NEW_TOKEN,
       refresh_token: TEST_NEW_REFRESH_TOKEN,
-      expires_in: 7200,
+      expires_in: TOKEN_DURATION,
     });
 
     const result = await controller.refreshToken(refreshTokenDto);

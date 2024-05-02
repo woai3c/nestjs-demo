@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { Users } from '../users/users.schema';
 import * as bcrypt from 'bcrypt';
 import {
   RevisePasswordDto,
@@ -12,12 +11,11 @@ import {
 } from '../users/users.dto';
 
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { TOKEN_DURATION } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -29,10 +27,14 @@ export class AuthService {
   async validateUser(
     username: string,
     password: string,
-  ): Promise<Partial<Users>> {
+  ): Promise<UserAccountDto> {
+    if (!username || !password) {
+      throw new BadRequestException('Username and password are required');
+    }
+
     const entity = await this.usersService.findOne({ username });
     if (!entity) {
-      throw new NotFoundException('User not found');
+      throw new UnauthorizedException('User not found');
     }
 
     if (entity.lockUntil && entity.lockUntil > Date.now()) {
@@ -77,22 +79,30 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
+    if (!refreshToken) {
+      throw new BadRequestException('Refresh token is required');
+    }
+
     try {
       const payload = this.jwtService.verify(refreshToken);
       const entity = await this.usersService.findOne({
         username: payload.username,
       });
 
+      if (!entity) {
+        throw new UnauthorizedException('User not found');
+      }
+
       if (entity) {
         const newPayload = { username: entity.username, userId: entity._id };
         return {
           access_token: this.jwtService.sign(newPayload),
           refresh_token: this.jwtService.sign(newPayload, { expiresIn: '7d' }),
-          expires_in: 7200,
+          expires_in: TOKEN_DURATION,
         };
       }
-    } catch (e) {
-      throw new UnauthorizedException();
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 
@@ -101,19 +111,18 @@ export class AuthService {
     user: UserAccountDto,
   ) {
     if (oldPassword === newPassword) {
-      throw new HttpException(
-        'The new password is the same as the old password',
-        HttpStatus.BAD_REQUEST,
+      throw new UnauthorizedException(
+        "The new password can't the same as the old password",
       );
     }
 
     const entity = await this.usersService.findById(user.userId);
     if (!entity) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new UnauthorizedException('User not found');
     }
 
     if (!bcrypt.compareSync(oldPassword, entity.password)) {
-      throw new HttpException('Wrong password', HttpStatus.BAD_REQUEST);
+      throw new UnauthorizedException('Wrong password');
     }
 
     return this.usersService.update(entity._id, {
@@ -125,14 +134,14 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(userAccountDto),
       refresh_token: this.jwtService.sign(userAccountDto, { expiresIn: '7d' }),
-      expires_in: 7200,
+      expires_in: TOKEN_DURATION,
     };
   }
 
   async profile(userAccountDto: UserAccountDto) {
     const entity = await this.usersService.findById(userAccountDto.userId);
     if (!entity) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new UnauthorizedException('User not found');
     }
 
     const { password, ...result } = entity.toObject();
@@ -141,10 +150,7 @@ export class AuthService {
 
   async register(usersDto: Partial<UsersDto>) {
     if (!usersDto.username || !usersDto.password) {
-      throw new HttpException(
-        'Username and password are required',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Username and password are required');
     }
 
     let entity = await this.usersService.findOne({
@@ -152,11 +158,11 @@ export class AuthService {
     });
 
     if (!passwordRegex.test(usersDto.password)) {
-      throw new HttpException(passwordErrorMessage, HttpStatus.BAD_REQUEST);
+      throw new BadRequestException(passwordErrorMessage);
     }
 
     if (entity) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('User already exists');
     }
 
     const hashedPassword = bcrypt.hashSync(usersDto.password, 10);
