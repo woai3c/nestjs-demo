@@ -28,10 +28,6 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<UserAccountDto> {
-    if (!username || !password) {
-      throw new BadRequestException('Username and password are required');
-    }
-
     const entity = await this.usersService.findOne({ username });
     if (!entity) {
       throw new UnauthorizedException('User not found');
@@ -114,6 +110,10 @@ export class AuthService {
       throw new UnauthorizedException(
         "The new password can't the same as the old password",
       );
+    }
+
+    if (!passwordRegex.test(newPassword)) {
+      throw new BadRequestException(passwordErrorMessage);
     }
 
     const entity = await this.usersService.findById(user.userId);

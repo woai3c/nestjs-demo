@@ -53,12 +53,6 @@ describe('AuthService', () => {
   });
 
   describe('validateUser', () => {
-    it('should throw a BadRequestException if username or password are not provided', async () => {
-      await expect(authService.validateUser('', '')).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
     it('should throw an UnauthorizedException if user is not found', async () => {
       await expect(
         authService.validateUser(TEST_USER_NAME, TEST_USER_PASSWORD),
@@ -187,6 +181,19 @@ describe('AuthService', () => {
       await expect(
         authService.revisePassword(revisePasswordDto, user),
       ).rejects.toThrow("The new password can't the same as the old password");
+    });
+
+    it('should throw BadRequestException if password pattern is incorrect', async () => {
+      const revisePasswordDto = {
+        oldPassword: TEST_USER_PASSWORD,
+        newPassword: 'short',
+      };
+
+      const user = { userId: TEST_USER_ID, username: TEST_USER_NAME };
+
+      await expect(
+        authService.revisePassword(revisePasswordDto, user),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw UnauthorizedException if user is not found', async () => {
