@@ -143,12 +143,6 @@ describe('AuthService', () => {
       expect(result).toEqual(newTokenData);
     });
 
-    it('should throw BadRequestException if refreshToken is empty', async () => {
-      await expect(authService.refreshToken('')).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
     it('should throw UnauthorizedException if refreshToken is error', async () => {
       await expect(
         authService.refreshToken('sfdfdsdfsdfdfsdsfssfsf'),
@@ -181,19 +175,6 @@ describe('AuthService', () => {
       await expect(
         authService.revisePassword(revisePasswordDto, user),
       ).rejects.toThrow("The new password can't the same as the old password");
-    });
-
-    it('should throw BadRequestException if password pattern is incorrect', async () => {
-      const revisePasswordDto = {
-        oldPassword: TEST_USER_PASSWORD,
-        newPassword: 'short',
-      };
-
-      const user = { userId: TEST_USER_ID, username: TEST_USER_NAME };
-
-      await expect(
-        authService.revisePassword(revisePasswordDto, user),
-      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw UnauthorizedException if user is not found', async () => {
@@ -308,22 +289,6 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('should throw BadRequestException if username or password is not provided', async () => {
-      const usersDto = { username: '', password: '' };
-
-      await expect(authService.register(usersDto)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
-    it('should throw BadRequestException if password pattern is incorrect', async () => {
-      const usersDto = { username: TEST_USER_NAME, password: 'short' };
-
-      await expect(authService.register(usersDto)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
     it('should throw BadRequestException if user already exists', async () => {
       const usersDto = {
         username: TEST_USER_NAME,

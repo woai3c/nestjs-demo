@@ -37,7 +37,7 @@ export class AuthController {
   @Public()
   @Post('register')
   @UsePipes(new ValidationPipe({ skipMissingProperties: true }))
-  register(@Body() usersDto: Partial<UsersDto>) {
+  register(@Body() usersDto: UsersDto) {
     return this.authService.register(usersDto);
   }
 

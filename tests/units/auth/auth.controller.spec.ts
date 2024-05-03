@@ -69,7 +69,7 @@ describe('AuthController', () => {
       expires_in: TOKEN_DURATION,
     });
 
-    const result = await controller.register(usersDto);
+    const result = await controller.register(usersDto as UsersDto);
 
     expect(authService.register).toHaveBeenCalledWith(usersDto);
     expect(result.access_token).toBe(TEST_TOKEN);

@@ -6,8 +6,6 @@ import {
   RevisePasswordDto,
   UserAccountDto,
   UsersDto,
-  passwordErrorMessage,
-  passwordRegex,
 } from '../users/users.dto';
 
 import {
@@ -75,10 +73,6 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
-    if (!refreshToken) {
-      throw new BadRequestException('Refresh token is required');
-    }
-
     try {
       const payload = this.jwtService.verify(refreshToken);
       const entity = await this.usersService.findOne({
@@ -110,10 +104,6 @@ export class AuthService {
       throw new UnauthorizedException(
         "The new password can't the same as the old password",
       );
-    }
-
-    if (!passwordRegex.test(newPassword)) {
-      throw new BadRequestException(passwordErrorMessage);
     }
 
     const entity = await this.usersService.findById(user.userId);
@@ -149,17 +139,9 @@ export class AuthService {
   }
 
   async register(usersDto: Partial<UsersDto>) {
-    if (!usersDto.username || !usersDto.password) {
-      throw new BadRequestException('Username and password are required');
-    }
-
     let entity = await this.usersService.findOne({
       username: usersDto.username,
     });
-
-    if (!passwordRegex.test(usersDto.password)) {
-      throw new BadRequestException(passwordErrorMessage);
-    }
 
     if (entity) {
       throw new BadRequestException('User already exists');
