@@ -1,43 +1,37 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Length,
-  Matches,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
 
-export const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/;
+export const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/
 export const passwordErrorMessage =
-  'Password must be 8-20 characters, include at least one uppercase letter, one lowercase letter, one number, and can only contain letters and numbers.';
+  'Password must be 8-20 characters, include at least one uppercase letter, one lowercase letter, one number, and can only contain letters and numbers.'
 
 export class UsersDto {
   @IsString()
-  address: string;
+  address: string
 
   @IsString()
-  avatar: string;
+  avatar: string
 
   @IsString()
-  city: string;
+  city: string
 
   @IsString()
-  description: string;
+  description: string
 
   @IsString()
-  gender: string;
+  gender: string
 
   @IsEmail()
-  email: string;
+  email: string
 
   @IsString()
-  name: string;
+  name: string
 
   @IsString()
-  phone: string;
+  phone: string
 
   @IsString()
   @IsNotEmpty()
-  username: string;
+  username: string
 
   @IsString()
   @IsNotEmpty()
@@ -45,38 +39,38 @@ export class UsersDto {
   @Matches(passwordRegex, {
     message: passwordErrorMessage,
   })
-  password: string;
+  password: string
 
   $inc: {
-    failedLoginAttempts: number;
-  };
+    failedLoginAttempts: number
+  }
 
   $set: {
-    failedLoginAttempts: number;
-    lockUntil: null | number;
-  };
+    failedLoginAttempts: number
+    lockUntil: null | number
+  }
 }
 
 export class UserAccountDto {
   @IsString()
   @IsNotEmpty()
-  username: string;
+  username: string
 
   @IsString()
   @IsNotEmpty()
-  userId: string;
+  userId: string
 }
 
 export class RefreshTokenDto {
   @IsNotEmpty()
   @IsString()
-  refreshToken: string;
+  refreshToken: string
 }
 
 export class RevisePasswordDto {
   @IsNotEmpty()
   @IsString()
-  oldPassword: string;
+  oldPassword: string
 
   @IsString()
   @IsNotEmpty()
@@ -84,5 +78,5 @@ export class RevisePasswordDto {
   @Matches(passwordRegex, {
     message: passwordErrorMessage,
   })
-  newPassword: string;
+  newPassword: string
 }

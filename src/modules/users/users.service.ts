@@ -1,12 +1,12 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Users } from './users.schema';
-import { UsersDto } from './users.dto';
+import { InjectModel } from '@nestjs/mongoose'
+import { Model } from 'mongoose'
+import { Users } from './users.schema'
+import { UsersDto } from './users.dto'
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
+} from '@nestjs/common'
 
 @Injectable()
 export class UsersService {
@@ -14,34 +14,34 @@ export class UsersService {
 
   create(usersDto: Partial<UsersDto>): Promise<Users> {
     if (!usersDto.password || !usersDto.username) {
-      throw new BadRequestException('Missing required password or username');
+      throw new BadRequestException('Missing required password or username')
     }
 
-    return this.userModel.create(usersDto);
+    return this.userModel.create(usersDto)
   }
 
   findAll(): Promise<Users[]> {
-    return this.userModel.find().exec();
+    return this.userModel.find().exec()
   }
 
   async findById(id: string): Promise<Users> {
-    const user = await this.userModel.findById(id).exec();
+    const user = await this.userModel.findById(id).exec()
     if (!user) {
-      throw new NotFoundException(`User not found for ID: ${id}`);
+      throw new NotFoundException(`User not found for ID: ${id}`)
     }
 
-    return user;
+    return user
   }
 
   findOne(query: Partial<UsersDto>): Promise<Users> {
-    return this.userModel.findOne(query).exec();
+    return this.userModel.findOne(query).exec()
   }
 
   update(id: string, usersDto: Partial<UsersDto>): Promise<Users> {
-    return this.userModel.findByIdAndUpdate(id, usersDto, { new: true }).exec();
+    return this.userModel.findByIdAndUpdate(id, usersDto, { new: true }).exec()
   }
 
   delete(id: string): Promise<Users> {
-    return this.userModel.findByIdAndDelete(id).exec();
+    return this.userModel.findByIdAndDelete(id).exec()
   }
 }

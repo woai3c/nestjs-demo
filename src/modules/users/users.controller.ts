@@ -1,5 +1,5 @@
-import { UsersService } from './users.service';
-import { Controller } from '@nestjs/common';
+import { UsersService } from './users.service'
+import { Controller } from '@nestjs/common'
 
 // TODO: Implement role-based access control.
 @Controller('users')

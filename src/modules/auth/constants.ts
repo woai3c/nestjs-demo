@@ -1,5 +1,5 @@
 export const jwtConstants = {
   secret: 'usersSecretKey',
-};
+}
 
-export const TOKEN_DURATION = 7200;
+export const TOKEN_DURATION = 7200

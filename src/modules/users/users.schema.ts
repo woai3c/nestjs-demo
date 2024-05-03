@@ -1,45 +1,45 @@
-import { validateObjectIdPlugin } from '@/plugins/validateObjectId';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { validateObjectIdPlugin } from '@/plugins/validateObjectId'
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import { Document } from 'mongoose'
 
 @Schema({ timestamps: true })
 export class Users extends Document {
   @Prop()
-  address: string;
+  address: string
 
   @Prop()
-  avatar: string;
+  avatar: string
 
   @Prop()
-  city: string;
+  city: string
 
   @Prop()
-  description: string;
+  description: string
 
   @Prop()
-  gender: string;
+  gender: string
 
   @Prop()
-  email: string;
+  email: string
 
   @Prop()
-  name: string;
+  name: string
 
   @Prop()
-  phone: string;
+  phone: string
 
   @Prop({ required: true })
-  username: string;
+  username: string
 
   @Prop({ required: true })
-  password: string;
+  password: string
 
   @Prop()
-  failedLoginAttempts: number;
+  failedLoginAttempts: number
 
   @Prop()
-  lockUntil: number;
+  lockUntil: number
 }
 
-export const UsersSchema = SchemaFactory.createForClass(Users);
-UsersSchema.plugin(validateObjectIdPlugin);
+export const UsersSchema = SchemaFactory.createForClass(Users)
+UsersSchema.plugin(validateObjectIdPlugin)

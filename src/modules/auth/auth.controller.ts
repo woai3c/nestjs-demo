@@ -1,7 +1,7 @@
-import { Request } from 'express';
-import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './local-auth.guard';
-import { Public } from './decorators/public.decorator';
+import { Request } from 'express'
+import { AuthService } from './auth.service'
+import { LocalAuthGuard } from './local-auth.guard'
+import { Public } from './decorators/public.decorator'
 
 import {
   Controller,
@@ -14,14 +14,14 @@ import {
   ValidationPipe,
   UsePipes,
   Delete,
-} from '@nestjs/common';
+} from '@nestjs/common'
 
 import {
   RefreshTokenDto,
   RevisePasswordDto,
   UserAccountDto,
   UsersDto,
-} from '../users/users.dto';
+} from '../users/users.dto'
 
 @Controller('auth')
 export class AuthController {
@@ -31,25 +31,25 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Req() req: Request) {
-    return this.authService.login(req.user);
+    return this.authService.login(req.user)
   }
 
   @Public()
   @Post('register')
   @UsePipes(new ValidationPipe({ skipMissingProperties: true }))
   register(@Body() usersDto: UsersDto) {
-    return this.authService.register(usersDto);
+    return this.authService.register(usersDto)
   }
 
   @Get('profile')
   profile(@Req() req: Request) {
-    return this.authService.profile(req.user);
+    return this.authService.profile(req.user)
   }
 
   @Post('refresh')
   @UsePipes(new ValidationPipe())
   refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
-    return this.authService.refreshToken(refreshTokenDto.refreshToken);
+    return this.authService.refreshToken(refreshTokenDto.refreshToken)
   }
 
   @Put('revise-password')
@@ -61,11 +61,11 @@ export class AuthController {
     await this.authService.revisePassword(
       revisePasswordDto,
       req.user as UserAccountDto,
-    );
+    )
   }
 
   @Delete('delete-user')
   async deleteUser(@Req() req: Request) {
-    return this.authService.deleteUser(req.user);
+    return this.authService.deleteUser(req.user)
   }
 }
