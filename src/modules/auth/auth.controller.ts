@@ -14,6 +14,7 @@ import {
   ValidationPipe,
   UsePipes,
   Delete,
+  HttpCode,
 } from '@nestjs/common'
 
 import {
@@ -30,6 +31,7 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @HttpCode(200)
   login(@Req() req: Request) {
     return this.authService.login(req.user)
   }

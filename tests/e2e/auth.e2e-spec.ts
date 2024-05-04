@@ -46,7 +46,7 @@ describe('AuthController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/login')
         .send({ username: TEST_USER_NAME, password: TEST_USER_PASSWORD })
-        .expect(201)
+        .expect(200)
     })
 
     it('/auth/login (POST) with user not found', () => {
