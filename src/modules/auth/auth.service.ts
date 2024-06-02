@@ -4,11 +4,7 @@ import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
 import { RevisePasswordDto, UserAccountDto, UsersDto } from '../users/users.dto'
 
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common'
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { TOKEN_DURATION } from './constants'
 
 @Injectable()
@@ -18,10 +14,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(
-    username: string,
-    password: string,
-  ): Promise<UserAccountDto> {
+  async validateUser(username: string, password: string): Promise<UserAccountDto> {
     const entity = await this.usersService.findOne({ username })
     if (!entity) {
       throw new UnauthorizedException('User not found')
@@ -41,14 +34,14 @@ export class AuthService {
     const passwordMatch = bcrypt.compareSync(password, entity.password)
     if (!passwordMatch) {
       // $inc update to increase failedLoginAttempts
-      const update = {
+      const update: AnyObject = {
         $inc: { failedLoginAttempts: 1 },
       }
 
       // lock account when the third try is failed
       if (entity.failedLoginAttempts + 1 >= 3) {
         // $set update to lock the account for 5 minutes
-        update['$set'] = { lockUntil: Date.now() + 5 * 60 * 1000 }
+        update.$set = { lockUntil: Date.now() + 5 * 60 * 1000 }
       }
 
       await this.usersService.update(entity._id, update)
@@ -56,10 +49,7 @@ export class AuthService {
     }
 
     // if validation is sucessful, then reset failedLoginAttempts and lockUntil
-    if (
-      entity.failedLoginAttempts > 0 ||
-      (entity.lockUntil && entity.lockUntil > Date.now())
-    ) {
+    if (entity.failedLoginAttempts > 0 || (entity.lockUntil && entity.lockUntil > Date.now())) {
       await this.usersService.update(entity._id, {
         $set: { failedLoginAttempts: 0, lockUntil: null },
       })
@@ -92,14 +82,9 @@ export class AuthService {
     }
   }
 
-  async revisePassword(
-    { oldPassword, newPassword }: RevisePasswordDto,
-    user: UserAccountDto,
-  ) {
+  async revisePassword({ oldPassword, newPassword }: RevisePasswordDto, user: UserAccountDto) {
     if (oldPassword === newPassword) {
-      throw new UnauthorizedException(
-        "The new password can't the same as the old password",
-      )
+      throw new UnauthorizedException("The new password can't the same as the old password")
     }
 
     const entity = await this.usersService.findById(user.userId)

@@ -2,11 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { AuthController } from '@/modules/auth/auth.controller'
 import { AuthService } from '@/modules/auth/auth.service'
 
-import {
-  RefreshTokenDto,
-  RevisePasswordDto,
-  UsersDto,
-} from '@/modules/users/users.dto'
+import { RefreshTokenDto, RevisePasswordDto, UsersDto } from '@/modules/users/users.dto'
 
 import {
   TEST_NEW_REFRESH_TOKEN,
@@ -118,9 +114,7 @@ describe('AuthController', () => {
 
     const result = await controller.refreshToken(refreshTokenDto)
 
-    expect(authService.refreshToken).toHaveBeenCalledWith(
-      refreshTokenDto.refreshToken,
-    )
+    expect(authService.refreshToken).toHaveBeenCalledWith(refreshTokenDto.refreshToken)
     expect(result.access_token).toBe(TEST_NEW_TOKEN)
   })
 
@@ -134,15 +128,9 @@ describe('AuthController', () => {
 
     ;(authService.revisePassword as jest.Mock).mockResolvedValue(undefined)
 
-    const result = await controller.revisePassword(
-      revisePasswordDto,
-      req as any,
-    )
+    const result = await controller.revisePassword(revisePasswordDto, req as any)
 
-    expect(authService.revisePassword).toHaveBeenCalledWith(
-      revisePasswordDto,
-      req.user,
-    )
+    expect(authService.revisePassword).toHaveBeenCalledWith(revisePasswordDto, req.user)
 
     expect(result).toBeUndefined()
   })

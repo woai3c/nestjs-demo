@@ -1,12 +1,13 @@
-import { Request } from 'express';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Request } from 'express'
 
 declare global {
   namespace Express {
     export interface Request {
       user?: {
-        userId: string;
-        username: string;
-      };
+        userId: string
+        username: string
+      }
     }
   }
 }

@@ -4,12 +4,7 @@ import { Users } from '@/modules/users/users.schema'
 import { getModelToken } from '@nestjs/mongoose'
 import { NotFoundException } from '@nestjs/common'
 import { Model } from 'mongoose'
-import {
-  TEST_NEW_USER_PASSWORD,
-  TEST_USER_ID,
-  TEST_USER_NAME,
-  TEST_USER_PASSWORD,
-} from '@tests/constants'
+import { TEST_NEW_USER_PASSWORD, TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD } from '@tests/constants'
 
 describe('UsersService', () => {
   let service: UsersService
@@ -23,19 +18,11 @@ describe('UsersService', () => {
 
   const mockUsersModel = {
     create: jest.fn().mockResolvedValue(mockUser),
-    find: jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue([mockUser]) }),
-    findById: jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue(mockUser) }),
-    findOne: jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue(mockUser) }),
+    find: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue([mockUser]) }),
+    findById: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockUser) }),
+    findOne: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockUser) }),
     findByIdAndUpdate: jest.fn().mockResolvedValue(mockUser),
-    findByIdAndDelete: jest
-      .fn()
-      .mockReturnValue({ exec: jest.fn().mockResolvedValue(mockUser) }),
+    findByIdAndDelete: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockUser) }),
   }
 
   beforeEach(async () => {
@@ -79,13 +66,9 @@ describe('UsersService', () => {
     })
 
     it('should throw NotFoundException if user not found', async () => {
-      mockUsersModel.findById = jest
-        .fn()
-        .mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
+      mockUsersModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
 
-      await expect(service.findById(mockUser._id)).rejects.toThrow(
-        NotFoundException,
-      )
+      await expect(service.findById(mockUser._id)).rejects.toThrow(NotFoundException)
     })
   })
 
@@ -116,11 +99,7 @@ describe('UsersService', () => {
         ...updateDto,
       })
 
-      expect(model.findByIdAndUpdate).toHaveBeenCalledWith(
-        mockUser._id,
-        updateDto,
-        { new: true },
-      )
+      expect(model.findByIdAndUpdate).toHaveBeenCalledWith(mockUser._id, updateDto, { new: true })
     })
   })
 

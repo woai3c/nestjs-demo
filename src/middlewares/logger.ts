@@ -2,12 +2,7 @@ import { LoggerService } from '@/services/logger'
 import { Injectable, NestMiddleware } from '@nestjs/common'
 import { Request, Response, NextFunction } from 'express'
 
-const privatePaths = [
-  '/auth/login',
-  '/auth/register',
-  '/auth/refresh',
-  '/auth/revise-password',
-]
+const privatePaths = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/revise-password']
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
   constructor(private loggerService: LoggerService) {}
@@ -21,9 +16,7 @@ export class LoggerMiddleware implements NestMiddleware {
     const userAgent = headers['user-agent'] || ''
     const requestId = headers['x-request-id'] || '' // unique request id
 
-    const bodyStr = privatePaths.includes(originalUrl)
-      ? '[PRIVATE]'
-      : JSON.stringify(body)
+    const bodyStr = privatePaths.includes(originalUrl) ? '[PRIVATE]' : JSON.stringify(body)
 
     this.loggerService.info(
       `[Request] (${requestId}) ${method} ${originalUrl} - Body: ${bodyStr} - Query: ${JSON.stringify(query)} - Agent: ${userAgent}`,
@@ -42,9 +35,7 @@ export class LoggerMiddleware implements NestMiddleware {
     // Error event listener
     res.on('close', () => {
       if (!res.writableEnded) {
-        this.loggerService.info(
-          `[Request Aborted] (${requestId}) ${method} ${originalUrl}`,
-        )
+        this.loggerService.info(`[Request Aborted] (${requestId}) ${method} ${originalUrl}`)
       }
     })
   }

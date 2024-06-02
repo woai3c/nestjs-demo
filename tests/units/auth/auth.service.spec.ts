@@ -1,3 +1,5 @@
+/* eslint-disable no-import-assign */
+/* eslint-disable camelcase */
 import { Test } from '@nestjs/testing'
 import { AuthService } from '@/modules/auth/auth.service'
 import { UsersService } from '@/modules/users/users.service'
@@ -54,9 +56,7 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should throw an UnauthorizedException if user is not found', async () => {
-      await expect(
-        authService.validateUser(TEST_USER_NAME, TEST_USER_PASSWORD),
-      ).rejects.toThrow(UnauthorizedException)
+      await expect(authService.validateUser(TEST_USER_NAME, TEST_USER_PASSWORD)).rejects.toThrow(UnauthorizedException)
     })
 
     it('should throw an UnauthorizedException if the account is locked', async () => {
@@ -69,9 +69,7 @@ describe('AuthService', () => {
 
       usersService.findOne.mockResolvedValueOnce(lockedUser)
 
-      await expect(
-        authService.validateUser(TEST_USER_NAME, TEST_USER_PASSWORD),
-      ).rejects.toThrow(UnauthorizedException)
+      await expect(authService.validateUser(TEST_USER_NAME, TEST_USER_PASSWORD)).rejects.toThrow(UnauthorizedException)
     })
 
     it('should throw an UnauthorizedException if the password does not match', async () => {
@@ -85,9 +83,7 @@ describe('AuthService', () => {
 
       usersService.findOne.mockResolvedValueOnce(userWithPassword) // Mock findOne return userWithPassword
 
-      await expect(
-        authService.validateUser(TEST_USER_NAME, 'wrong-password'),
-      ).rejects.toThrow(UnauthorizedException)
+      await expect(authService.validateUser(TEST_USER_NAME, 'wrong-password')).rejects.toThrow(UnauthorizedException)
     })
 
     it('should return a partial user object if username and password are correct', async () => {
@@ -102,10 +98,7 @@ describe('AuthService', () => {
 
       usersService.findOne.mockResolvedValueOnce(validUser)
 
-      const result = await authService.validateUser(
-        TEST_USER_NAME,
-        TEST_USER_PASSWORD,
-      )
+      const result = await authService.validateUser(TEST_USER_NAME, TEST_USER_PASSWORD)
 
       expect(result.userId).toEqual(validUser._id)
       expect(result.username).toEqual(TEST_USER_NAME)
@@ -144,9 +137,7 @@ describe('AuthService', () => {
     })
 
     it('should throw UnauthorizedException if refreshToken is error', async () => {
-      await expect(
-        authService.refreshToken('sfdfdsdfsdfdfsdsfssfsf'),
-      ).rejects.toThrow(UnauthorizedException)
+      await expect(authService.refreshToken('sfdfdsdfsdfdfsdsfssfsf')).rejects.toThrow(UnauthorizedException)
     })
 
     it('should throw UnauthorizedException if user is not found', async () => {
@@ -158,9 +149,7 @@ describe('AuthService', () => {
       jwtService.verify.mockReturnValue(payload)
       usersService.findOne.mockResolvedValueOnce(null)
 
-      await expect(authService.refreshToken(oldToken)).rejects.toThrow(
-        UnauthorizedException,
-      )
+      await expect(authService.refreshToken(oldToken)).rejects.toThrow(UnauthorizedException)
     })
   })
 
@@ -172,9 +161,9 @@ describe('AuthService', () => {
       }
       const user = { userId: TEST_USER_ID, username: TEST_USER_NAME }
 
-      await expect(
-        authService.revisePassword(revisePasswordDto, user),
-      ).rejects.toThrow("The new password can't the same as the old password")
+      await expect(authService.revisePassword(revisePasswordDto, user)).rejects.toThrow(
+        "The new password can't the same as the old password",
+      )
     })
 
     it('should throw UnauthorizedException if user is not found', async () => {
@@ -186,9 +175,7 @@ describe('AuthService', () => {
 
       usersService.findById.mockResolvedValueOnce(null)
 
-      await expect(
-        authService.revisePassword(revisePasswordDto, user),
-      ).rejects.toThrow('User not found')
+      await expect(authService.revisePassword(revisePasswordDto, user)).rejects.toThrow('User not found')
     })
 
     it('should successfully update the password if the old password is correct', async () => {
@@ -229,9 +216,7 @@ describe('AuthService', () => {
       usersService.findById.mockResolvedValueOnce(entity)
       bcrypt.compareSync = jest.fn().mockReturnValueOnce(false)
 
-      await expect(
-        authService.revisePassword(revisePasswordDto, user),
-      ).rejects.toThrow('Wrong password')
+      await expect(authService.revisePassword(revisePasswordDto, user)).rejects.toThrow('Wrong password')
     })
   })
 
@@ -259,9 +244,7 @@ describe('AuthService', () => {
 
       usersService.findById.mockResolvedValueOnce(null)
 
-      await expect(authService.profile(userAccountDto)).rejects.toThrow(
-        UnauthorizedException,
-      )
+      await expect(authService.profile(userAccountDto)).rejects.toThrow(UnauthorizedException)
     })
 
     it('should return user profile details excluding password', async () => {
@@ -271,7 +254,7 @@ describe('AuthService', () => {
         username: TEST_USER_NAME,
         password: TEST_USER_PASSWORD,
         email: TEST_EMAIL,
-        toObject: function () {
+        toObject() {
           return { _id: this._id, username: this.username, email: this.email }
         },
       }
@@ -297,9 +280,7 @@ describe('AuthService', () => {
 
       usersService.findOne.mockResolvedValueOnce({})
 
-      await expect(authService.register(usersDto)).rejects.toThrow(
-        BadRequestException,
-      )
+      await expect(authService.register(usersDto)).rejects.toThrow(BadRequestException)
     })
 
     it('should successfully register a new user if they do not exist', async () => {
@@ -349,9 +330,7 @@ describe('AuthService', () => {
 
       usersService.delete.mockRejectedValueOnce(deletionError)
 
-      await expect(authService.deleteUser(userAccountDto)).rejects.toThrow(
-        deletionError,
-      )
+      await expect(authService.deleteUser(userAccountDto)).rejects.toThrow(deletionError)
     })
   })
 })

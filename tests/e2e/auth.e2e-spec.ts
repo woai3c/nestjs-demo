@@ -2,12 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from '@/app.module'
-import {
-  TEST_NEW_USER_PASSWORD,
-  TEST_USER_NAME,
-  TEST_USER_NAME2,
-  TEST_USER_PASSWORD,
-} from '@tests/constants'
+import { TEST_NEW_USER_PASSWORD, TEST_USER_NAME, TEST_USER_NAME2, TEST_USER_PASSWORD } from '@tests/constants'
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication
@@ -101,14 +96,10 @@ describe('AuthController (e2e)', () => {
         .post('/auth/login')
         .send({ username: TEST_USER_NAME2, password: TEST_USER_PASSWORD })
         .then((res) => {
-          expect(res.body.message).toContain(
-            'The account is locked. Please try again in 5 minutes.',
-          )
+          expect(res.body.message).toContain('The account is locked. Please try again in 5 minutes.')
         })
 
-      await request(app.getHttpServer())
-        .delete('/auth/delete-user')
-        .set('Authorization', `Bearer ${accessToken}`)
+      await request(app.getHttpServer()).delete('/auth/delete-user').set('Authorization', `Bearer ${accessToken}`)
 
       await app.close()
     })
@@ -140,10 +131,7 @@ describe('AuthController (e2e)', () => {
     })
 
     it('/auth/refresh (POST) without authorization', () => {
-      return request(app.getHttpServer())
-        .post('/auth/refresh')
-        .set('Authorization', `Bearer invalidToken`)
-        .expect(401) // Expect an unauthorized error
+      return request(app.getHttpServer()).post('/auth/refresh').set('Authorization', `Bearer invalidToken`).expect(401) // Expect an unauthorized error
     })
   })
 
@@ -207,10 +195,7 @@ describe('AuthController (e2e)', () => {
 
   describe('profile', () => {
     it('/auth/profile (GET)', () => {
-      return request(app.getHttpServer())
-        .get('/auth/profile')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .expect(200)
+      return request(app.getHttpServer()).get('/auth/profile').set('Authorization', `Bearer ${accessToken}`).expect(200)
     })
 
     // Test profile without authorization
@@ -258,9 +243,7 @@ describe('AuthController (e2e)', () => {
   describe('delete-user', () => {
     // Test delete user without authorization
     it('/auth/delete-user (DELETE) without authorization', () => {
-      return request(app.getHttpServer())
-        .delete('/auth/delete-user')
-        .expect(401) // Expect an unauthorized error
+      return request(app.getHttpServer()).delete('/auth/delete-user').expect(401) // Expect an unauthorized error
     })
   })
 })

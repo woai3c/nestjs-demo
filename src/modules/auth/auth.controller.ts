@@ -17,12 +17,7 @@ import {
   HttpCode,
 } from '@nestjs/common'
 
-import {
-  RefreshTokenDto,
-  RevisePasswordDto,
-  UserAccountDto,
-  UsersDto,
-} from '../users/users.dto'
+import { RefreshTokenDto, RevisePasswordDto, UserAccountDto, UsersDto } from '../users/users.dto'
 
 @Controller('auth')
 export class AuthController {
@@ -56,14 +51,8 @@ export class AuthController {
 
   @Put('revise-password')
   @UsePipes(new ValidationPipe())
-  async revisePassword(
-    @Body() revisePasswordDto: RevisePasswordDto,
-    @Req() req: Request,
-  ) {
-    await this.authService.revisePassword(
-      revisePasswordDto,
-      req.user as UserAccountDto,
-    )
+  async revisePassword(@Body() revisePasswordDto: RevisePasswordDto, @Req() req: Request) {
+    await this.authService.revisePassword(revisePasswordDto, req.user as UserAccountDto)
   }
 
   @Delete('delete-user')

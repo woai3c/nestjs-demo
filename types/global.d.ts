@@ -1,1 +1,1 @@
-type AnyObject = Record<string, any>;
+type AnyObject = Record<string, any>
