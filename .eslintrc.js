@@ -5,7 +5,7 @@ module.exports = {
     es6: true,
     jest: true,
   },
-  extends: ['eslint-config-airbnb-vue3-ts'],
+  extends: ['./node_modules/eslint-prettier-config-airbnb-ts'],
   rules: {
     '@typescript-eslint/consistent-type-imports': 'off',
     'no-empty-function': 'off',

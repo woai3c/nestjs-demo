@@ -1,4 +1,3 @@
-import { validateObjectIdPlugin } from '@/plugins/validateObjectId'
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Document } from 'mongoose'
 
@@ -42,4 +41,3 @@ export class Users extends Document {
 }
 
 export const UsersSchema = SchemaFactory.createForClass(Users)
-UsersSchema.plugin(validateObjectIdPlugin)
