@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { AuthController } from '@/modules/auth/auth.controller'
 import { AuthService } from '@/modules/auth/auth.service'
 
-import { RefreshTokenDto, RevisePasswordDto, UsersDto } from '@/modules/users/users.dto'
+import { RefreshTokenDto, RevisePasswordDto } from '@/modules/users/users.dto'
 
 import {
   TEST_NEW_REFRESH_TOKEN,
@@ -54,7 +54,7 @@ describe('AuthController', () => {
   })
 
   it('should call register', async () => {
-    const usersDto: Partial<UsersDto> = {
+    const usersDto = {
       username: TEST_USER_NAME,
       password: TEST_USER_PASSWORD,
     }
@@ -65,7 +65,7 @@ describe('AuthController', () => {
       expires_in: TOKEN_DURATION,
     })
 
-    const result = await controller.register(usersDto as UsersDto)
+    const result = await controller.register(usersDto)
 
     expect(authService.register).toHaveBeenCalledWith(usersDto)
     expect(result.access_token).toBe(TEST_TOKEN)

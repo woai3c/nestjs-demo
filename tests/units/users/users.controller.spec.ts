@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { UsersController } from '@/modules/users/users.controller'
 import { UsersService } from '@/modules/users/users.service'
-import { Role, UsersDto, AssignRoleDto } from '@/modules/users/users.dto'
+import { Role, AssignRoleDto } from '@/modules/users/users.dto'
 import { RolesGuard } from '@/modules/auth/roles.guard'
 import { Reflector } from '@nestjs/core'
 import { TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD } from '@tests/constants'
@@ -39,7 +39,7 @@ describe('UsersController', () => {
       const result = { _id: TEST_USER_ID, role: Role.User, ...usersDto }
       mockUsersService.create.mockResolvedValue(result)
 
-      expect(await usersController.create(usersDto as UsersDto)).toBe(result)
+      expect(await usersController.create(usersDto)).toBe(result)
       expect(usersService.create).toHaveBeenCalledWith(usersDto)
     })
   })
@@ -81,7 +81,7 @@ describe('UsersController', () => {
       const result = { _id: TEST_USER_ID, role: Role.User, ...usersDto }
       mockUsersService.update.mockResolvedValue(result)
 
-      expect(await usersController.update(TEST_USER_ID, usersDto as UsersDto)).toBe(result)
+      expect(await usersController.update(TEST_USER_ID, usersDto)).toBe(result)
       expect(usersService.update).toHaveBeenCalledWith(TEST_USER_ID, usersDto)
     })
   })

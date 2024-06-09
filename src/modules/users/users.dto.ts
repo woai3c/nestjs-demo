@@ -1,34 +1,55 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator'
 
 export const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/
 export const passwordErrorMessage =
   'Password must be 8-20 characters, include at least one uppercase letter, one lowercase letter, one number, and can only contain letters and numbers.'
 
-export class UsersDto {
+export class UsersBaseDto {
   @IsString()
-  address: string
+  @IsOptional()
+  address?: string
 
   @IsString()
-  avatar: string
+  @IsOptional()
+  avatar?: string
 
   @IsString()
-  city: string
+  @IsOptional()
+  city?: string
 
   @IsString()
-  description: string
+  @IsOptional()
+  description?: string
 
   @IsString()
-  gender: string
+  @IsOptional()
+  gender?: string
 
   @IsEmail()
-  email: string
+  @IsOptional()
+  email?: string
 
   @IsString()
-  name: string
+  @IsOptional()
+  name?: string
 
   @IsString()
-  phone: string
+  @IsOptional()
+  phone?: string
 
+  @IsOptional()
+  $inc?: {
+    failedLoginAttempts: number
+  }
+
+  @IsOptional()
+  $set?: {
+    failedLoginAttempts: number
+    lockUntil: null | number
+  }
+}
+
+export class UsersDto extends UsersBaseDto {
   @IsString()
   @IsNotEmpty()
   username: string
@@ -40,15 +61,16 @@ export class UsersDto {
     message: passwordErrorMessage,
   })
   password: string
+}
 
-  $inc: {
-    failedLoginAttempts: number
-  }
-
-  $set: {
-    failedLoginAttempts: number
-    lockUntil: null | number
-  }
+export class UpdateUsersDto extends UsersBaseDto {
+  @IsString()
+  @IsOptional()
+  @Length(8, 20)
+  @Matches(passwordRegex, {
+    message: passwordErrorMessage,
+  })
+  password?: string
 }
 
 export enum Role {
@@ -67,6 +89,7 @@ export class UserAccountDto {
   userId: string
 
   @IsEnum(Role)
+  @IsOptional()
   role?: Role
 }
 

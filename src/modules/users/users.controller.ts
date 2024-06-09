@@ -1,7 +1,7 @@
-import { AssignRoleDto, Role, UsersDto } from './users.dto'
+import { AssignRoleDto, Role, UpdateUsersDto, UsersDto } from './users.dto'
 import { Users } from './users.schema'
 import { UsersService } from './users.service'
-import { Body, Controller, Get, Post, Put, Delete, Param, UseGuards, ValidationPipe, UsePipes } from '@nestjs/common'
+import { Body, Controller, Get, Post, Put, Delete, Param, UseGuards } from '@nestjs/common'
 import { Roles } from '../auth/decorators/roles.decorator'
 import { RolesGuard } from '../auth/roles.guard'
 
@@ -12,7 +12,6 @@ export class UsersController {
 
   @Post()
   @Roles(Role.SuperAdmin)
-  @UsePipes(new ValidationPipe({ skipMissingProperties: true }))
   create(@Body() usersDto: UsersDto): Promise<Users> {
     return this.usersService.create(usersDto)
   }
@@ -29,7 +28,7 @@ export class UsersController {
     return this.usersService.findById(id)
   }
 
-  @Put('/assign-role')
+  @Put('assign-role')
   @Roles(Role.SuperAdmin)
   async assignRole(@Body() assignRoleDto: AssignRoleDto) {
     return this.usersService.assignRole(assignRoleDto)
@@ -37,7 +36,7 @@ export class UsersController {
 
   @Put(':id')
   @Roles(Role.SuperAdmin)
-  update(@Param('id') id: string, @Body() usersDto: UsersDto): Promise<Users> {
+  update(@Param('id') id: string, @Body() usersDto: UpdateUsersDto): Promise<Users> {
     return this.usersService.update(id, usersDto)
   }
 

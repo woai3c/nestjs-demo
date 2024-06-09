@@ -3,19 +3,7 @@ import { AuthService } from './auth.service'
 import { LocalAuthGuard } from './local-auth.guard'
 import { Public } from './decorators/public.decorator'
 
-import {
-  Controller,
-  Post,
-  UseGuards,
-  Body,
-  Req,
-  Put,
-  Get,
-  ValidationPipe,
-  UsePipes,
-  Delete,
-  HttpCode,
-} from '@nestjs/common'
+import { Controller, Post, UseGuards, Body, Req, Put, Get, Delete, HttpCode } from '@nestjs/common'
 
 import { RefreshTokenDto, RevisePasswordDto, UserAccountDto, UsersDto } from '../users/users.dto'
 
@@ -33,7 +21,6 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  @UsePipes(new ValidationPipe({ skipMissingProperties: true }))
   register(@Body() usersDto: UsersDto) {
     return this.authService.register(usersDto)
   }
@@ -44,13 +31,11 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @UsePipes(new ValidationPipe())
   refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshToken(refreshTokenDto.refreshToken)
   }
 
   @Put('revise-password')
-  @UsePipes(new ValidationPipe())
   async revisePassword(@Body() revisePasswordDto: RevisePasswordDto, @Req() req: Request) {
     await this.authService.revisePassword(revisePasswordDto, req.user as UserAccountDto)
   }

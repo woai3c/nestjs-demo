@@ -5,7 +5,7 @@ import { getModelToken } from '@nestjs/mongoose'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { Model } from 'mongoose'
 import { TEST_NEW_USER_PASSWORD, TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD } from '@tests/constants'
-import { Role } from '@/modules/users/users.dto'
+import { Role, UsersDto } from '@/modules/users/users.dto'
 
 describe('UsersService', () => {
   let service: UsersService
@@ -63,7 +63,7 @@ describe('UsersService', () => {
 
     it('should throw BadRequestException if missing required fields', async () => {
       const missingFields = { username: 'username' } // Only username provided, missing password
-      await expect(service.create(missingFields)).rejects.toThrow(BadRequestException)
+      await expect(service.create(missingFields as UsersDto)).rejects.toThrow(BadRequestException)
     })
   })
 

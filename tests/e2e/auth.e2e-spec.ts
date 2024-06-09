@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication } from '@nestjs/common'
+import { INestApplication, ValidationPipe } from '@nestjs/common'
 import * as request from 'supertest'
 import { AppModule } from '@/app.module'
 import { TEST_NEW_USER_PASSWORD, TEST_USER_NAME, TEST_USER_NAME2, TEST_USER_PASSWORD } from '@tests/constants'
@@ -15,6 +15,7 @@ describe('AuthController (e2e)', () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
+    app.useGlobalPipes(new ValidationPipe())
     await app.init()
 
     // 执行登录以获取令牌
