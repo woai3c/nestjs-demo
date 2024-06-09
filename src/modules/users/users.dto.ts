@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
+import { IsEmail, IsEnum, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
 
 export const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/
 export const passwordErrorMessage =
@@ -51,6 +51,12 @@ export class UsersDto {
   }
 }
 
+export enum Role {
+  User = 'User',
+  Admin = 'Admin',
+  SuperAdmin = 'SuperAdmin',
+}
+
 export class UserAccountDto {
   @IsString()
   @IsNotEmpty()
@@ -59,6 +65,9 @@ export class UserAccountDto {
   @IsString()
   @IsNotEmpty()
   userId: string
+
+  @IsEnum(Role)
+  role?: Role
 }
 
 export class RefreshTokenDto {
@@ -79,4 +88,14 @@ export class RevisePasswordDto {
     message: passwordErrorMessage,
   })
   newPassword: string
+}
+
+export class AssignRoleDto {
+  @IsString()
+  @IsNotEmpty()
+  readonly userId: string
+
+  @IsEnum(Role)
+  @IsNotEmpty()
+  readonly role: Role
 }

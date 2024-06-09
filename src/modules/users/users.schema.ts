@@ -1,6 +1,6 @@
-import { validateObjectIdPlugin } from '@/plugins/validateObjectId'
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Document } from 'mongoose'
+import { Role } from './users.dto'
 
 @Schema({ timestamps: true })
 export class Users extends Document {
@@ -34,6 +34,9 @@ export class Users extends Document {
   @Prop({ required: true })
   password: string
 
+  @Prop({ default: Role.User, enum: Role })
+  role: Role
+
   @Prop()
   failedLoginAttempts: number
 
@@ -42,4 +45,3 @@ export class Users extends Document {
 }
 
 export const UsersSchema = SchemaFactory.createForClass(Users)
-UsersSchema.plugin(validateObjectIdPlugin)

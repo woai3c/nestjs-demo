@@ -2,16 +2,19 @@
 import { UsersService } from '../users/users.service'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
-import { RevisePasswordDto, UserAccountDto, UsersDto } from '../users/users.dto'
-
+import { RevisePasswordDto, Role, UserAccountDto, UsersDto } from '../users/users.dto'
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { TOKEN_DURATION } from './constants'
+import { TEST_SUPER_ADMIN } from '@tests/constants'
+import { InjectRedis } from '@nestjs-modules/ioredis'
+import Redis from 'ioredis'
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   async validateUser(username: string, password: string): Promise<UserAccountDto> {
@@ -48,14 +51,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid password')
     }
 
-    // if validation is sucessful, then reset failedLoginAttempts and lockUntil
+    // if validation is successful, then reset failedLoginAttempts and lockUntil
     if (entity.failedLoginAttempts > 0 || (entity.lockUntil && entity.lockUntil > Date.now())) {
       await this.usersService.update(entity._id, {
         $set: { failedLoginAttempts: 0, lockUntil: null },
       })
     }
 
-    return { userId: entity._id, username } as UserAccountDto
+    return { userId: entity._id, username, role: entity.role } as UserAccountDto
   }
 
   async refreshToken(refreshToken: string) {
@@ -71,6 +74,8 @@ export class AuthService {
 
       if (entity) {
         const newPayload = { username: entity.username, userId: entity._id }
+        this.redis.set(entity._id, JSON.stringify({ userId: entity._id, role: entity.role }))
+
         return {
           access_token: this.jwtService.sign(newPayload),
           refresh_token: this.jwtService.sign(newPayload, { expiresIn: '7d' }),
@@ -102,9 +107,14 @@ export class AuthService {
   }
 
   login(userAccountDto: UserAccountDto) {
+    const { role, ...rest } = userAccountDto
+    const payload = rest
+
+    this.redis.set(userAccountDto.userId, JSON.stringify({ userId: userAccountDto.userId, role }))
+
     return {
-      access_token: this.jwtService.sign(userAccountDto),
-      refresh_token: this.jwtService.sign(userAccountDto, { expiresIn: '7d' }),
+      access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
       expires_in: TOKEN_DURATION,
     }
   }
@@ -129,15 +139,26 @@ export class AuthService {
     }
 
     const hashedPassword = bcrypt.hashSync(usersDto.password, 10)
+
+    // for testing purposes
+    if (usersDto.username === TEST_SUPER_ADMIN && process.env.NODE_ENV === 'test') {
+      ;(usersDto as AnyObject).role = Role.SuperAdmin
+    }
+
     entity = await this.usersService.create({
       ...usersDto,
       password: hashedPassword,
     })
 
-    return this.login({ userId: entity._id, username: entity.username })
+    return this.login({ userId: entity._id, username: entity.username, role: entity.role })
   }
 
-  deleteUser(userAccountDto: UserAccountDto) {
+  async deleteUser(userAccountDto: UserAccountDto) {
+    const entity = await this.usersService.findById(userAccountDto.userId)
+    if (!entity) {
+      throw new UnauthorizedException('User not found')
+    }
+
     return this.usersService.delete(userAccountDto.userId)
   }
 }

@@ -7,6 +7,8 @@ import { UsersModule } from './modules/users/users.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { LoggerMiddleware } from '@/middlewares/logger'
 import { LoggerService } from '@/services/logger'
+import { RolesGuard } from './modules/auth/roles.guard'
+import { RedisModule } from '@nestjs-modules/ioredis'
 
 const envs = {
   production: '.env.production',
@@ -29,9 +31,17 @@ const envs = {
     }),
     UsersModule,
     AuthModule,
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'single',
+        url: `redis://${configService.get<string>('NEST_REDIS_URL')}:${configService.get<string>('NEST_REDIS_PORT')}`,
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService, LoggerService],
+  providers: [AppService, LoggerService, RolesGuard],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

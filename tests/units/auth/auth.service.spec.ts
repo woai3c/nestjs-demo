@@ -6,6 +6,8 @@ import { UsersService } from '@/modules/users/users.service'
 import { JwtService } from '@nestjs/jwt'
 import { BadRequestException, UnauthorizedException } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
+import { TOKEN_DURATION } from '@/modules/auth/constants'
+import Redis from 'ioredis'
 import {
   TEST_EMAIL,
   TEST_NEW_TOKEN,
@@ -16,12 +18,13 @@ import {
   TEST_USER_NAME,
   TEST_USER_PASSWORD,
 } from '@tests/constants'
-import { TOKEN_DURATION } from '@/modules/auth/constants'
+import { Role } from '@/modules/users/users.dto'
 
 describe('AuthService', () => {
   let authService: AuthService // Use the actual AuthService type
   let usersService: Partial<Record<keyof UsersService, jest.Mock>>
   let jwtService: Partial<Record<keyof JwtService, jest.Mock>>
+  let redis: Partial<Record<keyof Redis, jest.Mock>>
 
   beforeEach(async () => {
     usersService = {
@@ -37,6 +40,12 @@ describe('AuthService', () => {
       verify: jest.fn(),
     }
 
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      del: jest.fn(),
+    }
+
     const module = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -47,6 +56,10 @@ describe('AuthService', () => {
         {
           provide: JwtService,
           useValue: jwtService,
+        },
+        {
+          provide: 'default_IORedisModuleConnectionToken',
+          useValue: redis,
         },
       ],
     }).compile()
@@ -88,12 +101,14 @@ describe('AuthService', () => {
 
     it('should return a partial user object if username and password are correct', async () => {
       bcrypt.compareSync = jest.fn().mockReturnValueOnce(true) // Mock bcrypt.compareSync return true
+
       const validUser = {
         _id: TEST_USER_ID,
         username: TEST_USER_NAME,
         password: bcrypt.hashSync(TEST_USER_PASSWORD, 10),
         failedLoginAttempts: 0,
         lockUntil: null,
+        role: Role.User,
       }
 
       usersService.findOne.mockResolvedValueOnce(validUser)
@@ -102,6 +117,7 @@ describe('AuthService', () => {
 
       expect(result.userId).toEqual(validUser._id)
       expect(result.username).toEqual(TEST_USER_NAME)
+      expect(result.role).toEqual(Role.User)
     })
   })
 
@@ -319,18 +335,19 @@ describe('AuthService', () => {
     it('should call usersService.delete with userId of the user', async () => {
       const userAccountDto = { userId: TEST_USER_ID, username: TEST_USER_NAME }
 
+      usersService.findById.mockResolvedValueOnce(true)
+
       await authService.deleteUser(userAccountDto)
 
       expect(usersService.delete).toHaveBeenCalledWith(TEST_USER_ID)
     })
 
-    it('should throw an error if deletion fails', async () => {
+    it('should throw UnauthorizedException if user is not found', async () => {
       const userAccountDto = { userId: TEST_USER_ID, username: TEST_USER_NAME }
-      const deletionError = new Error('Deletion failed')
 
-      usersService.delete.mockRejectedValueOnce(deletionError)
+      usersService.findById.mockResolvedValueOnce(null)
 
-      await expect(authService.deleteUser(userAccountDto)).rejects.toThrow(deletionError)
+      await expect(authService.deleteUser(userAccountDto)).rejects.toThrow(UnauthorizedException)
     })
   })
 })

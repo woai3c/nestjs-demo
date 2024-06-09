@@ -2,11 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { LocalStrategy } from '@/modules/auth/local.strategy'
 import { JwtStrategy } from '@/modules/auth/jwt.strategy'
 import { AuthService } from '@/modules/auth/auth.service'
-import { UserAccountDto } from '@/modules/users/users.dto'
-import { ExecutionContext } from '@nestjs/common'
+import { Role, UserAccountDto } from '@/modules/users/users.dto'
+import { ExecutionContext, UnauthorizedException } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { JwtAuthGuard } from '@/modules/auth/auth.guard'
 import { TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD } from '@tests/constants'
+import Redis from 'ioredis'
 
 describe('LocalStrategy', () => {
   let localStrategy: LocalStrategy
@@ -52,18 +53,41 @@ describe('LocalStrategy', () => {
 
 describe('JwtStrategy', () => {
   let jwtStrategy: JwtStrategy
+  let redis: Partial<Record<keyof Redis, jest.Mock>>
 
   beforeEach(() => {
-    jwtStrategy = new JwtStrategy()
+    redis = {
+      get: jest.fn(),
+    }
+
+    jwtStrategy = new JwtStrategy(redis as unknown as Redis)
   })
 
   it('should validate token payload', async () => {
     const payload: UserAccountDto = {
       userId: TEST_USER_ID,
-      username: TEST_USER_PASSWORD,
+      username: TEST_USER_NAME,
+      role: Role.User,
     }
 
-    expect(await jwtStrategy.validate(payload)).toEqual(payload)
+    redis.get.mockResolvedValueOnce(JSON.stringify({ userId: TEST_USER_ID, role: Role.User }))
+
+    const result = await jwtStrategy.validate(payload)
+
+    expect(result).toEqual(payload)
+    expect(redis.get).toHaveBeenCalledWith(payload.userId)
+  })
+
+  it('should throw UnauthorizedException if session is not found', async () => {
+    const payload: UserAccountDto = {
+      userId: TEST_USER_ID,
+      username: TEST_USER_NAME,
+      role: Role.User,
+    }
+
+    redis.get.mockResolvedValueOnce(null)
+
+    await expect(jwtStrategy.validate(payload)).rejects.toThrow(UnauthorizedException)
   })
 })
 

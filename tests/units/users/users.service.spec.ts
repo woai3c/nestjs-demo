@@ -2,9 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { UsersService } from '@/modules/users/users.service'
 import { Users } from '@/modules/users/users.schema'
 import { getModelToken } from '@nestjs/mongoose'
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { Model } from 'mongoose'
 import { TEST_NEW_USER_PASSWORD, TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD } from '@tests/constants'
+import { Role } from '@/modules/users/users.dto'
 
 describe('UsersService', () => {
   let service: UsersService
@@ -25,6 +26,12 @@ describe('UsersService', () => {
     findByIdAndDelete: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockUser) }),
   }
 
+  const mockRedis = {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+  }
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -32,6 +39,10 @@ describe('UsersService', () => {
         {
           provide: getModelToken(Users.name),
           useValue: mockUsersModel,
+        },
+        {
+          provide: 'default_IORedisModuleConnectionToken',
+          useValue: mockRedis,
         },
       ],
     }).compile()
@@ -50,13 +61,10 @@ describe('UsersService', () => {
       expect(model.create).toHaveBeenCalledWith(mockUser)
     })
 
-    // TO FIX: why this test is not working?
-    // it('should throw BadRequestException if missing required fields', async () => {
-    //   const missingFields = { username: 'username' };
-    //   await expect(service.create(missingFields)).rejects.toThrow(
-    //     'Missing required password or username',
-    //   );
-    // });
+    it('should throw BadRequestException if missing required fields', async () => {
+      const missingFields = { username: 'username' } // Only username provided, missing password
+      await expect(service.create(missingFields)).rejects.toThrow(BadRequestException)
+    })
   })
 
   describe('findById', () => {
@@ -101,12 +109,87 @@ describe('UsersService', () => {
 
       expect(model.findByIdAndUpdate).toHaveBeenCalledWith(mockUser._id, updateDto, { new: true })
     })
+
+    it('should throw NotFoundException if user not found', async () => {
+      const updateDto = { password: TEST_NEW_USER_PASSWORD }
+      mockUsersModel.findByIdAndUpdate = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
+
+      await expect(service.update(mockUser._id, updateDto)).rejects.toThrow(NotFoundException)
+    })
   })
 
   describe('delete', () => {
     it('should delete a user', async () => {
+      mockUsersModel.findByIdAndDelete = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockUser) })
       expect(await service.delete(mockUser._id)).toEqual(mockUser)
       expect(model.findByIdAndDelete).toHaveBeenCalledWith(mockUser._id)
+    })
+
+    it('should throw NotFoundException if user not found', async () => {
+      mockUsersModel.findByIdAndDelete = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
+
+      await expect(service.delete(mockUser._id)).rejects.toThrow(NotFoundException)
+    })
+  })
+
+  describe('assignRole', () => {
+    it('should assign a role to a user', async () => {
+      const assignRoleDto = { userId: mockUser._id, role: Role.Admin }
+      const updatedUser = {
+        ...mockUser,
+        role: Role.Admin,
+        save: jest.fn().mockResolvedValue({ ...mockUser, role: Role.Admin }),
+      }
+
+      mockUsersModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(updatedUser) })
+
+      expect(await service.assignRole(assignRoleDto)).toEqual(
+        expect.objectContaining({
+          _id: updatedUser._id,
+          username: updatedUser.username,
+          password: updatedUser.password,
+          role: updatedUser.role,
+        }),
+      )
+
+      expect(model.findById).toHaveBeenCalledWith(mockUser._id)
+    })
+
+    it('should throw NotFoundException if user not found', async () => {
+      const assignRoleDto = { userId: mockUser._id, role: Role.Admin }
+      mockUsersModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) })
+
+      await expect(service.assignRole(assignRoleDto)).rejects.toThrow(NotFoundException)
+    })
+  })
+
+  // Redis-specific tests
+  describe('Redis operations', () => {
+    it('should update redis session on user role assignment', async () => {
+      const assignRoleDto = { userId: mockUser._id, role: Role.Admin }
+      const updatedUser = {
+        ...mockUser,
+        role: Role.Admin,
+        save: jest.fn().mockResolvedValue({ ...mockUser, role: Role.Admin }),
+      }
+
+      mockUsersModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(updatedUser) })
+      mockRedis.get = jest.fn().mockResolvedValue(JSON.stringify({ userId: mockUser._id, role: Role.User }))
+
+      await service.assignRole(assignRoleDto)
+
+      expect(mockRedis.get).toHaveBeenCalledWith(mockUser._id)
+      expect(mockRedis.set).toHaveBeenCalledWith(
+        mockUser._id,
+        JSON.stringify({ userId: mockUser._id, role: Role.Admin }),
+      )
+    })
+
+    it('should delete redis session on user deletion', async () => {
+      mockUsersModel.findByIdAndDelete = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockUser) })
+      await service.delete(mockUser._id)
+
+      expect(mockRedis.del).toHaveBeenCalledWith(mockUser._id)
     })
   })
 })
