@@ -54,7 +54,7 @@ describe('AuthController', () => {
   })
 
   it('should call register', async () => {
-    const usersDto: Partial<UsersDto> = {
+    const usersDto: UsersDto = {
       username: TEST_USER_NAME,
       password: TEST_USER_PASSWORD,
     }

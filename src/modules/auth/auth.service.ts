@@ -119,7 +119,7 @@ export class AuthService {
     return result
   }
 
-  async register(usersDto: Partial<UsersDto>) {
+  async register(usersDto: UsersDto) {
     let entity = await this.usersService.findOne({
       username: usersDto.username,
     })

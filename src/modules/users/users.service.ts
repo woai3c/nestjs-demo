@@ -1,14 +1,14 @@
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import { Users } from './users.schema'
-import { UsersDto } from './users.dto'
+import { UpdateUsersDto, UsersDto } from './users.dto'
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(Users.name) private userModel: Model<Users>) {}
 
-  create(usersDto: Partial<UsersDto>): Promise<Users> {
+  create(usersDto: UsersDto): Promise<Users> {
     if (!usersDto.password || !usersDto.username) {
       throw new BadRequestException('Missing required password or username')
     }
@@ -33,7 +33,7 @@ export class UsersService {
     return this.userModel.findOne(query).exec()
   }
 
-  update(id: string, usersDto: Partial<UsersDto>): Promise<Users> {
+  update(id: string, usersDto: UpdateUsersDto): Promise<Users> {
     return this.userModel.findByIdAndUpdate(id, usersDto, { new: true }).exec()
   }
 
