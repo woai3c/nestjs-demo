@@ -11,7 +11,7 @@
     "start": "cross-env NODE_ENV=development nest start",
     "dev": "cross-env NODE_ENV=development nest start --watch",
     "start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
-    "start:prod": "cross-env NODE_ENV=production node dist/main",
+    "start:prod": "cross-env NODE_ENV=production node dist/src/main",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "test": "cross-env NODE_ENV=test jest",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
