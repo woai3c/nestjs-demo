@@ -32,4 +32,8 @@ export class LoggerService {
   error(message: string) {
     this.logger.error(message)
   }
+
+  warn(message: string) {
+    this.logger.warn(message)
+  }
 }
