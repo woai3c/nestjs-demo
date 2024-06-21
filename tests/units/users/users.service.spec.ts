@@ -6,6 +6,8 @@ import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { Model } from 'mongoose'
 import { TEST_NEW_USER_PASSWORD, TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD } from '@tests/constants'
 import { Role, UsersDto } from '@/modules/users/users.dto'
+import { CustomI18nService } from '@/services/custom-i18n'
+import { I18nContext, I18nService } from 'nestjs-i18n'
 
 describe('UsersService', () => {
   let service: UsersService
@@ -35,7 +37,14 @@ describe('UsersService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        CustomI18nService,
         UsersService,
+        {
+          provide: I18nService,
+          useValue: {
+            t: jest.fn().mockImplementation((key: string, options?: any) => key), // 模拟实现 t 方法
+          },
+        },
         {
           provide: getModelToken(Users.name),
           useValue: mockUsersModel,
@@ -49,6 +58,10 @@ describe('UsersService', () => {
 
     service = module.get<UsersService>(UsersService)
     model = module.get<Model<Users>>(getModelToken(Users.name))
+
+    jest.spyOn(I18nContext, 'current').mockReturnValue({
+      lang: 'en',
+    } as any)
   })
 
   it('should be defined', () => {

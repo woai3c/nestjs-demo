@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthController } from '@/modules/auth/auth.controller'
 import { AuthService } from '@/modules/auth/auth.service'
-
+import { I18nContext, I18nService } from 'nestjs-i18n'
 import { RefreshTokenDto, RevisePasswordDto } from '@/modules/users/users.dto'
-
+import { TOKEN_DURATION } from '@/modules/auth/constants'
+import { CustomI18nService } from '@/services/custom-i18n'
 import {
   TEST_NEW_REFRESH_TOKEN,
   TEST_NEW_TOKEN,
@@ -13,7 +14,6 @@ import {
   TEST_USER_NAME,
   TEST_USER_PASSWORD,
 } from '@tests/constants'
-import { TOKEN_DURATION } from '@/modules/auth/constants'
 
 describe('AuthController', () => {
   let controller: AuthController
@@ -23,6 +23,13 @@ describe('AuthController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
+        CustomI18nService,
+        {
+          provide: I18nService,
+          useValue: {
+            t: jest.fn().mockImplementation((key: string, options?: any) => key), // 模拟实现 t 方法
+          },
+        },
         {
           provide: AuthService,
           useValue: {
@@ -51,6 +58,10 @@ describe('AuthController', () => {
 
     controller = module.get<AuthController>(AuthController)
     authService = module.get<AuthService>(AuthService)
+
+    jest.spyOn(I18nContext, 'current').mockReturnValue({
+      lang: 'en',
+    } as any)
   })
 
   it('should call register', async () => {

@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './auth.guard'
 import { AuthController } from './auth.controller'
 import { UsersModule } from '../users/users.module'
+import { CustomI18nService } from '@/services/custom-i18n'
 
 @Module({
   controllers: [AuthController],
@@ -24,6 +25,7 @@ import { UsersModule } from '../users/users.module'
     AuthService,
     LocalStrategy,
     JwtStrategy,
+    CustomI18nService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

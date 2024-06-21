@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator'
+import { i18nValidationMessage } from 'nestjs-i18n'
 
 export const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/
-export const passwordErrorMessage =
-  'Password must be 8-20 characters, include at least one uppercase letter, one lowercase letter, one number, and can only contain letters and numbers.'
 
 export class UsersBaseDto {
   @ApiProperty({ required: false })
@@ -71,7 +70,7 @@ export class UsersDto extends UsersBaseDto {
   @IsNotEmpty()
   @Length(8, 20)
   @Matches(passwordRegex, {
-    message: passwordErrorMessage,
+    message: i18nValidationMessage('users.passwordMatchError'),
   })
   password: string
 }
@@ -82,7 +81,7 @@ export class UpdateUsersDto extends UsersBaseDto {
   @IsOptional()
   @Length(8, 20)
   @Matches(passwordRegex, {
-    message: passwordErrorMessage,
+    message: i18nValidationMessage('users.passwordMatchError'),
   })
   password?: string
 }
@@ -128,7 +127,7 @@ export class RevisePasswordDto {
   @IsNotEmpty()
   @Length(8, 20)
   @Matches(passwordRegex, {
-    message: passwordErrorMessage,
+    message: i18nValidationMessage('validation.passwordErrorMessage'),
   })
   newPassword: string
 }

@@ -9,6 +9,9 @@ import { LoggerMiddleware } from '@/middlewares/logger'
 import { LoggerService } from '@/services/logger'
 import { RolesGuard } from './modules/auth/roles.guard'
 import { RedisModule } from '@nestjs-modules/ioredis'
+import { I18nModule, QueryResolver, AcceptLanguageResolver } from 'nestjs-i18n'
+import { join } from 'path'
+import { CustomI18nService } from '@/services/custom-i18n'
 
 const envs = {
   production: '.env.production',
@@ -18,6 +21,14 @@ const envs = {
 
 @Module({
   imports: [
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      loaderOptions: {
+        path: join(__dirname, '/i18n/'),
+        watch: true,
+      },
+      resolvers: [new QueryResolver(['lang']), new AcceptLanguageResolver()],
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: envs[process.env.NODE_ENV || 'development'],
@@ -41,7 +52,7 @@ const envs = {
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, LoggerService, RolesGuard],
+  providers: [AppService, LoggerService, RolesGuard, CustomI18nService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

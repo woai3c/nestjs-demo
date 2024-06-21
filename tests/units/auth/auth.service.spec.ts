@@ -19,6 +19,8 @@ import {
   TEST_USER_PASSWORD,
 } from '@tests/constants'
 import { Role } from '@/modules/users/users.dto'
+import { CustomI18nService } from '@/services/custom-i18n'
+import { I18nContext, I18nService } from 'nestjs-i18n'
 
 describe('AuthService', () => {
   let authService: AuthService // Use the actual AuthService type
@@ -50,6 +52,33 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         {
+          provide: CustomI18nService,
+          useValue: {
+            t: jest.fn().mockImplementation((key: string) => {
+              switch (key) {
+                case 'users.wrongPassword':
+                  return 'Wrong password'
+                case 'users.notFound':
+                  return 'User not found'
+                case 'users.missingRequiredPasswordOrUsername':
+                  return 'Missing required password or username'
+                case 'users.notFoundId':
+                  return 'User not found with id'
+                case 'users.samePassword':
+                  return "The new password can't the same as the old password"
+                default:
+                  return key
+              }
+            }),
+          },
+        },
+        {
+          provide: I18nService,
+          useValue: {
+            t: jest.fn().mockImplementation((key: string, options?: any) => key), // 模拟实现 t 方法
+          },
+        },
+        {
           provide: UsersService,
           useValue: usersService,
         },
@@ -65,6 +94,10 @@ describe('AuthService', () => {
     }).compile()
 
     authService = module.get<AuthService>(AuthService)
+
+    jest.spyOn(I18nContext, 'current').mockReturnValue({
+      lang: 'en',
+    } as any)
   })
 
   describe('validateUser', () => {

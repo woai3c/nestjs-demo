@@ -1,0 +1,15 @@
+{
+  "notFound": "Not Found",
+  "notFoundId": "User not found for ID: {id}",
+  "wrongPassword": "Wrong Password",
+  "invalidPassword": "Invalid password",
+  "lockedWithMin": "The account is locked. Please try again in {minutes} minutes.",
+  "lockedWithSec": "The account is locked. Please try again in {seconds} seconds.",
+  "invalidRefreshToken": "Invalid refresh token",
+  "samePassword": "The new password can't the same as the old password",
+  "usernameExists": "User already exists",
+  "passwordRequired": "Username and password are required",
+  "invalidCredentials": "Invalid credentials",
+  "missingRequiredPasswordOrUsername": "Missing required password or username",
+  "passwordMatchError": "Password must be 8-20 characters, include at least one uppercase letter, one lowercase letter, one number, and can only contain letters and numbers."
+}

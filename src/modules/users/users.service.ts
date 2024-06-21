@@ -5,17 +5,19 @@ import { AssignRoleDto, Role, UpdateUsersDto, UsersDto } from './users.dto'
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRedis } from '@nestjs-modules/ioredis'
 import Redis from 'ioredis'
+import { CustomI18nService } from '@/services/custom-i18n'
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(Users.name) private userModel: Model<Users>,
     @InjectRedis() private readonly redis: Redis,
+    private readonly customI18nService: CustomI18nService,
   ) {}
 
   async create(usersDto: UsersDto): Promise<Users> {
     if (!usersDto.password || !usersDto.username) {
-      throw new BadRequestException('Missing required password or username')
+      throw new BadRequestException(this.customI18nService.t('users.missingRequiredPasswordOrUsername'))
     }
 
     return this.userModel.create(usersDto)
@@ -28,7 +30,7 @@ export class UsersService {
   async findById(id: string): Promise<Users> {
     const user = await this.userModel.findById(id).exec()
     if (!user) {
-      throw new NotFoundException(`User not found for ID: ${id}`)
+      throw new NotFoundException(this.customI18nService.t('users.notFoundId', { args: { id } }))
     }
 
     return user
@@ -41,7 +43,7 @@ export class UsersService {
   async update(id: string, usersDto: UpdateUsersDto): Promise<Users> {
     const user = await this.userModel.findByIdAndUpdate(id, usersDto, { new: true }).exec()
     if (!user) {
-      throw new NotFoundException(`User not found for ID: ${id}`)
+      throw new NotFoundException(this.customI18nService.t('users.notFoundId', { args: { id } }))
     }
 
     // update role in session
@@ -53,7 +55,7 @@ export class UsersService {
   async delete(id: string): Promise<Users> {
     const user = await this.userModel.findByIdAndDelete(id).exec()
     if (!user) {
-      throw new NotFoundException(`User not found for ID: ${id}`)
+      throw new NotFoundException(this.customI18nService.t('users.notFoundId', { args: { id } }))
     }
 
     // delete session
@@ -67,7 +69,7 @@ export class UsersService {
 
     const user = await this.userModel.findById(userId).exec()
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException(this.customI18nService.t('users.notFound'))
     }
 
     user.role = role
