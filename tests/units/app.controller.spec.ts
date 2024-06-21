@@ -28,7 +28,7 @@ describe('AppController', () => {
         {
           provide: I18nService,
           useValue: {
-            t: jest.fn().mockImplementation((key: string, options?: any) => key), // 模拟实现 t 方法
+            t: jest.fn().mockImplementation((key: string) => key), // mock method t
           },
         },
       ],

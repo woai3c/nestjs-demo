@@ -127,7 +127,7 @@ export class RevisePasswordDto {
   @IsNotEmpty()
   @Length(8, 20)
   @Matches(passwordRegex, {
-    message: i18nValidationMessage('validation.passwordErrorMessage'),
+    message: i18nValidationMessage('users.passwordMatchError'),
   })
   newPassword: string
 }

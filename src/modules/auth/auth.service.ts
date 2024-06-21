@@ -27,10 +27,13 @@ export class AuthService {
 
     if (entity.lockUntil && entity.lockUntil > Date.now()) {
       const diffInSeconds = Math.round((entity.lockUntil - Date.now()) / 1000)
-      let message = await this.customI18nService.t('users.lockedWithSec', { args: { minutes: diffInSeconds } })
+
+      let message = ''
       if (diffInSeconds > 60) {
         const diffInMinutes = Math.round(diffInSeconds / 60)
         message = await this.customI18nService.t('users.lockedWithMin', { args: { minutes: diffInMinutes } })
+      } else {
+        message = await this.customI18nService.t('users.lockedWithSec', { args: { minutes: diffInSeconds } })
       }
 
       throw new UnauthorizedException(message)
