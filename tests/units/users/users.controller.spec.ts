@@ -5,6 +5,8 @@ import { Role, AssignRoleDto } from '@/modules/users/users.dto'
 import { RolesGuard } from '@/modules/auth/roles.guard'
 import { Reflector } from '@nestjs/core'
 import { TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD } from '@tests/constants'
+import { CustomI18nService } from '@/services/custom-i18n'
+import { I18nContext, I18nService } from 'nestjs-i18n'
 
 describe('UsersController', () => {
   let usersController: UsersController
@@ -22,11 +24,26 @@ describe('UsersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [{ provide: UsersService, useValue: mockUsersService }, RolesGuard, Reflector],
+      providers: [
+        { provide: UsersService, useValue: mockUsersService },
+        {
+          provide: I18nService,
+          useValue: {
+            t: jest.fn().mockImplementation((key: string, options?: any) => key), // 模拟实现 t 方法
+          },
+        },
+        RolesGuard,
+        Reflector,
+        CustomI18nService,
+      ],
     }).compile()
 
     usersController = module.get<UsersController>(UsersController)
     usersService = module.get<UsersService>(UsersService)
+
+    jest.spyOn(I18nContext, 'current').mockReturnValue({
+      lang: 'en',
+    } as any)
   })
 
   it('should be defined', () => {

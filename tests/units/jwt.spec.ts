@@ -8,6 +8,8 @@ import { Reflector } from '@nestjs/core'
 import { JwtAuthGuard } from '@/modules/auth/auth.guard'
 import { TEST_USER_ID, TEST_USER_NAME, TEST_USER_PASSWORD } from '@tests/constants'
 import Redis from 'ioredis'
+import { CustomI18nService } from '@/services/custom-i18n'
+import { I18nContext, I18nService } from 'nestjs-i18n'
 
 describe('LocalStrategy', () => {
   let localStrategy: LocalStrategy
@@ -17,6 +19,27 @@ describe('LocalStrategy', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         LocalStrategy,
+        {
+          provide: CustomI18nService,
+          useValue: {
+            t: jest.fn().mockImplementation((key: string) => {
+              switch (key) {
+                case 'users.invalidCredentials':
+                  return 'Invalid credentials'
+                case 'users.passwordRequired':
+                  return 'Username and password are required'
+                default:
+                  return key
+              }
+            }),
+          },
+        },
+        {
+          provide: I18nService,
+          useValue: {
+            t: jest.fn().mockImplementation((key: string, options?: any) => key), // 模拟实现 t 方法
+          },
+        },
         {
           provide: AuthService,
           useValue: {
@@ -31,6 +54,10 @@ describe('LocalStrategy', () => {
 
     localStrategy = module.get<LocalStrategy>(LocalStrategy)
     authService = module.get<AuthService>(AuthService)
+
+    jest.spyOn(I18nContext, 'current').mockReturnValue({
+      lang: 'en',
+    } as any)
   })
 
   it('should validate user', async () => {

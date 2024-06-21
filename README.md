@@ -1,6 +1,7 @@
 - [v1-test](https://github.com/woai3c/nestjs-demo/tree/v1-test)
 - [v2-rbac](https://github.com/woai3c/nestjs-demo/tree/v2-rbac)
 - [v3-apidoc](https://github.com/woai3c/nestjs-demo/tree/v3-apidoc)
+- [v4-i18n](https://github.com/woai3c/nestjs-demo/tree/v4-i18n)
 
 ## Description
 
@@ -17,12 +18,14 @@ This is a NestJS project that uses the following technology stack:
 - [cross-env](https://github.com/kentcdodds/cross-env): A library for setting environment variables, which can maintain consistent behavior across different operating systems.
 - [redis](https://redis.io/): A in-memory data structure store, used as a cache.
 - [swagger](https://swagger.io/): A tool for documenting APIs.
+- [nestjs-i18n](https://nestjs-i18n.com/): A library for internationalization.
 
 ## Features
 
 - user module - CRUD, RBAC
 - auth module - login, register, delete, token and refresh token
 - api doc - swagger
+- i18n - internationalization
 
 ## Installation
 
