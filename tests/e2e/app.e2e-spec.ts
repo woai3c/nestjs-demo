@@ -19,7 +19,8 @@ describe('AppController (e2e)', () => {
     await app.close()
   })
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer()).get('/').expect(200).expect('Hello, World!')
+  it('/ (GET)', async () => {
+    await request(app.getHttpServer()).get('/').expect(200).expect('Hello, World!')
+    return request(app.getHttpServer()).get('/').set('Accept-Language', 'zh').expect(200).expect('你好，世界！')
   })
 })
