@@ -25,7 +25,7 @@ const envs = {
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('NEST_MONGODB_URL'),
+        uri: configService.get<string>('MONGODB_URL'),
       }),
       inject: [ConfigService],
     }),
@@ -35,7 +35,7 @@ const envs = {
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         type: 'single',
-        url: `redis://${configService.get<string>('NEST_REDIS_URL')}:${configService.get<string>('NEST_REDIS_PORT')}`,
+        url: `redis://${configService.get<string>('REDIS_URL')}:${configService.get<string>('REDIS_PORT')}`,
       }),
       inject: [ConfigService],
     }),
