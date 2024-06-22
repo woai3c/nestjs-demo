@@ -69,11 +69,6 @@ $ pnpm test:cov
 
 When deploying the project with Docker, you need to replace the environment variables in `docker-compose.yml`:
 
-- `MONGODB_URL`: MongoDB connection address
-- `NEST_CORS_DOMAINS`: CORS domains
-- `NEST_SERVER_PORT`: Server port
-- `volumes`: MongoDB data path
-
 ```yml
 version: '3'
 services:
@@ -87,26 +82,26 @@ services:
       - mongodb
       - redis
     environment:
-      # replace with your mongodb url
       - MONGODB_URL=mongodb://mongodb:27017/mongodb?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.0
       - NEST_SERVER_PORT=3000
-      # replace with your cors domains
       - NEST_CORS_DOMAINS=http://localhost:3001,http://localhost:8080
       - REDIS_URL=redis
       - REDIS_PORT=6379
+    restart: always
 
   mongodb:
     image: mongo
     ports:
       - '27017:27017'
     volumes:
-      # replace with your mongodb data path
       - D:/software/mongodb/test:/data/db
 
   redis:
     image: redis:alpine
     ports:
       - '6379:6379'
+    volumes:
+      - D:/docker-data-map/redis/data:/data
 ```
 
 Then, execute `docker-compose build` and `docker-compose up -d` to deploy the project.
