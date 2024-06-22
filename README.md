@@ -13,16 +13,20 @@ This is a NestJS project that uses the following technology stack:
 - [cross-env](https://github.com/kentcdodds/cross-env): A library for setting environment variables, which can maintain consistent behavior across different operating systems.
 
 ## Features
-* user module - CRUD
-* auth module - login, register, delete, token and refresh token
+
+- user module - CRUD
+- auth module - login, register, delete, token and refresh token
 
 ## Installation
+
 ```bash
 # if you don't have pnpm installed, you can install it with npm
 $ npm i -g pnpm
 $ pnpm install
 ```
+
 **Additionally, you need to have MongoDB installed in advance.**
+
 ## Running the app
 
 ```bash
@@ -51,11 +55,13 @@ $ pnpm test:cov
 ```
 
 ## Docker Deployment
+
 When deploying the project with Docker, you need to replace the environment variables in `docker-compose.yml`:
-* `NEST_MONGODB_URL`: MongoDB connection address
-* `NEST_CORS_DOMAINS`: CORS domains
-* `NEST_SERVER_PORT`: Server port
-* `volumes`: MongoDB data path
+
+- `MONGODB_URL`: MongoDB connection address
+- `NEST_CORS_DOMAINS`: CORS domains
+- `NEST_SERVER_PORT`: Server port
+- `volumes`: MongoDB data path
 
 ```yml
 version: '3'
@@ -70,7 +76,7 @@ services:
       - mongodb
     environment:
       # replace with your mongodb url
-      - NEST_MONGODB_URL=mongodb://mongodb:27017/mongodb?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.0
+      - MONGODB_URL=mongodb://mongodb:27017/mongodb?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.0
       - NEST_SERVER_PORT=3000
       # replace with your cors domains
       - NEST_CORS_DOMAINS=http://localhost:3001,http://localhost:8080
@@ -82,4 +88,5 @@ services:
       # replace with your mongodb data path
       - D:/software/mongodb/test:/data/db
 ```
-Then, execute `docker-compose up -d` to deploy the project.
+
+Then, execute `docker-compose build` and `docker-compose up -d` to deploy the project.
