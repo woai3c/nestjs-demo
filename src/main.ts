@@ -3,6 +3,7 @@ import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
 import { ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import * as apm from 'elastic-apm-node'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -10,6 +11,13 @@ async function bootstrap() {
 
   const configService: ConfigService = app.get(ConfigService)
   const isProduction = configService.get('NODE_ENV') === 'production'
+
+  apm.start({
+    serviceName: configService.get('ELASTIC_APM_SERVICE_NAME'),
+    serverUrl: configService.get('ELASTIC_APM_SERVER_URL'),
+    secretToken: configService.get('ELASTIC_APM_SECRET_TOKEN'),
+    environment: configService.get('NODE_ENV'),
+  })
 
   if (!isProduction) {
     const config = new DocumentBuilder()
