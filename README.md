@@ -2,6 +2,7 @@
 - [v2-rbac](https://github.com/woai3c/nestjs-demo/tree/v2-rbac)
 - [v3-apidoc](https://github.com/woai3c/nestjs-demo/tree/v3-apidoc)
 - [v4-i18n](https://github.com/woai3c/nestjs-demo/tree/v4-i18n)
+- [v5-apm](https://github.com/woai3c/nestjs-demo/tree/v5-apm)
 
 ## Description
 
@@ -68,7 +69,7 @@ $ pnpm test:cov
 
 When deploying the project with Docker, you need to replace the environment variables in `docker-compose.yml`:
 
-- `NEST_MONGODB_URL`: MongoDB connection address
+- `MONGODB_URL`: MongoDB connection address
 - `NEST_CORS_DOMAINS`: CORS domains
 - `NEST_SERVER_PORT`: Server port
 - `volumes`: MongoDB data path
@@ -87,12 +88,12 @@ services:
       - redis
     environment:
       # replace with your mongodb url
-      - NEST_MONGODB_URL=mongodb://mongodb:27017/mongodb?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.0
+      - MONGODB_URL=mongodb://mongodb:27017/mongodb?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.0
       - NEST_SERVER_PORT=3000
       # replace with your cors domains
       - NEST_CORS_DOMAINS=http://localhost:3001,http://localhost:8080
-      - NEST_REDIS_URL=redis
-      - NEST_REDIS_PORT=6379
+      - REDIS_URL=redis
+      - REDIS_PORT=6379
 
   mongodb:
     image: mongo
@@ -108,4 +109,4 @@ services:
       - '6379:6379'
 ```
 
-Then, execute `docker-compose up -d` to deploy the project.
+Then, execute `docker-compose build` and `docker-compose up -d` to deploy the project.
