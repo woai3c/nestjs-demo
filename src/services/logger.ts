@@ -1,18 +1,31 @@
 import { Injectable } from '@nestjs/common'
-import * as winston from 'winston'
-import { Logger, format, transports } from 'winston'
+import { Logger, createLogger, format, transports } from 'winston'
+import { RequestContextMiddleware } from '@/middlewares/request-context'
 
 @Injectable()
 export class LoggerService {
   private logger: Logger
 
   constructor() {
-    this.logger = winston.createLogger({
+    const logFile = process.env.NODE_ENV === 'log-test' ? 'test.log' : 'combined.log'
+    const errorLogFile = process.env.NODE_ENV === 'log-test' ? 'test-error.log' : 'error.log'
+
+    this.logger = createLogger({
       level: 'info',
-      format: format.json(),
+      format: format.combine(
+        format.timestamp(),
+        format.printf(({ timestamp, level, message, ...meta }) => {
+          const requestId = RequestContextMiddleware.getRequestId()
+          return `${timestamp} [${level.toUpperCase()}] [RequestID: ${requestId}] ${message} ${JSON.stringify(meta)}`
+        }),
+      ),
       transports: [
-        new transports.File({ filename: 'error.log', level: 'error' }),
-        new transports.File({ filename: 'combined.log' }),
+        new transports.File({ filename: errorLogFile, level: 'error' }),
+        new transports.File({
+          filename: logFile,
+          level: 'info',
+          format: format.combine(format((info) => (info.level === 'error' ? false : info))(), format.json()),
+        }),
       ],
     })
 
@@ -25,15 +38,15 @@ export class LoggerService {
     }
   }
 
-  info(message: string) {
-    this.logger.info(message)
+  info(message: string, meta?: any) {
+    this.logger.info(message, meta)
   }
 
-  error(message: string) {
-    this.logger.error(message)
+  error(message: string, meta?: any) {
+    this.logger.error(message, meta)
   }
 
-  warn(message: string) {
-    this.logger.warn(message)
+  warn(message: string, meta?: any) {
+    this.logger.warn(message, meta)
   }
 }

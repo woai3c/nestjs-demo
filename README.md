@@ -3,6 +3,7 @@
 - [v3-apidoc](https://github.com/woai3c/nestjs-demo/tree/v3-apidoc)
 - [v4-i18n](https://github.com/woai3c/nestjs-demo/tree/v4-i18n)
 - [v5-apm](https://github.com/woai3c/nestjs-demo/tree/v5-apm)
+- [v6-global-exception](https://github.com/woai3c/nestjs-demo/tree/v6-global-exception)
 
 ## Description
 
@@ -20,6 +21,7 @@ This is a NestJS project that uses the following technology stack:
 - [redis](https://redis.io/): A in-memory data structure store, used as a cache.
 - [swagger](https://swagger.io/): A tool for documenting APIs.
 - [nestjs-i18n](https://nestjs-i18n.com/): A library for internationalization.
+- [cls-hooked](https://github.com/jeff-lewis/cls-hooked): A library for managing context in asynchronous operations.
 
 ## Features
 

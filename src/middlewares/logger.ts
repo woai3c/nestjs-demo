@@ -1,6 +1,7 @@
 import { LoggerService } from '@/services/logger'
 import { Injectable, NestMiddleware } from '@nestjs/common'
 import { Request, Response, NextFunction } from 'express'
+import { RequestContextMiddleware } from './request-context'
 
 const privatePaths = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/revise-password']
 
@@ -15,8 +16,8 @@ export class LoggerMiddleware implements NestMiddleware {
 
     const { method, originalUrl, body, query, headers } = req
     const userAgent = headers['user-agent'] || ''
-    const requestId = headers['x-request-id'] || '' // unique request id
-    const ip = req.ip || req.connection.remoteAddress || ''
+    const requestId = RequestContextMiddleware.getRequestId()
+    const ip = req.ip || req.socket.remoteAddress || ''
     const referer = headers.referer || ''
 
     const bodyStr = privatePaths.includes(originalUrl) ? '[PRIVATE]' : JSON.stringify(body)
@@ -37,7 +38,6 @@ export class LoggerMiddleware implements NestMiddleware {
       )
     })
 
-    // Error event listener
     res.on('close', () => {
       if (!res.writableEnded) {
         const closeTimestamp = new Date().toISOString()
