@@ -4,7 +4,7 @@ import * as request from 'supertest'
 import { AppModule } from '@/app.module'
 import { TEST_NEW_USER_PASSWORD, TEST_USER_NAME, TEST_USER_NAME2, TEST_USER_PASSWORD } from '@tests/constants'
 
-describe('AuthController (e2e)', () => {
+describe('AuthModule (e2e)', () => {
   let app: INestApplication
   let accessToken: string
   let refreshToken: string

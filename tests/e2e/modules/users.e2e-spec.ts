@@ -12,7 +12,7 @@ import {
   TEST_USER_PASSWORD,
 } from '@tests/constants'
 
-describe('UsersController (e2e)', () => {
+describe('UsersModule (e2e)', () => {
   let app: INestApplication
   let superAdminAccessToken: string
   let adminAccessToken: string
