@@ -36,7 +36,7 @@ $ npm i -g pnpm
 $ pnpm install
 ```
 
-**Additionally, you need to have MongoDB installed in advance.**
+**Additionally, you must install MongoDB and Redis in advance.**
 
 ## Running the app
 
