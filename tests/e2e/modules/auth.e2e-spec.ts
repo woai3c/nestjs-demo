@@ -8,6 +8,7 @@ describe('AuthModule (e2e)', () => {
   let app: INestApplication
   let accessToken: string
   let refreshToken: string
+  let deletedToken: string
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -19,13 +20,25 @@ describe('AuthModule (e2e)', () => {
     await app.init()
 
     // 执行登录以获取令牌
-    const response = await request(app.getHttpServer())
+    const { body } = await request(app.getHttpServer())
       .post('/auth/register')
       .send({ username: TEST_USER_NAME, password: TEST_USER_PASSWORD })
       .expect(201)
 
-    accessToken = response.body.access_token
-    refreshToken = response.body.refresh_token
+    const response = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ username: TEST_USER_NAME2, password: TEST_USER_PASSWORD })
+      .expect(201)
+
+    accessToken = body.access_token
+    refreshToken = body.refresh_token
+
+    deletedToken = response.body.access_token
+
+    await request(app.getHttpServer())
+      .delete('/auth/delete-user')
+      .set('Authorization', `Bearer ${deletedToken}`)
+      .expect(200)
   })
 
   afterAll(async () => {
@@ -123,16 +136,28 @@ describe('AuthModule (e2e)', () => {
         .expect(400)
     })
 
-    it('/auth/refresh (POST) with user not found', () => {
-      return request(app.getHttpServer())
+    it('/auth/refresh (POST) with an invalid refreshToken or accessToken', async () => {
+      await request(app.getHttpServer())
         .post('/auth/refresh')
         .set('Authorization', `Bearer ${accessToken}111`)
         .send({ refreshToken })
         .expect(401) // Expect an unauthorized error
+
+      return request(app.getHttpServer())
+        .post('/auth/refresh')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ refreshToken: 'xxx' })
+        .expect((res) => {
+          expect(res.body.message).toContain('Invalid refresh token')
+        })
     })
 
-    it('/auth/refresh (POST) without authorization', () => {
-      return request(app.getHttpServer()).post('/auth/refresh').set('Authorization', `Bearer invalidToken`).expect(401) // Expect an unauthorized error
+    it('/auth/refresh (POST) with user not found', () => {
+      return request(app.getHttpServer())
+        .post('/auth/refresh')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ refreshToken: deletedToken })
+        .expect(401)
     })
   })
 
