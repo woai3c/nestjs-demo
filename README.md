@@ -34,8 +34,8 @@ This is a NestJS project that uses the following technology stack:
 
 ```bash
 # if you don't have pnpm installed, you can install it with npm
-$ npm i -g pnpm
-$ pnpm install
+npm i -g pnpm
+pnpm install
 ```
 
 **Additionally, you must install MongoDB and Redis in advance.**
@@ -44,27 +44,28 @@ $ pnpm install
 
 ```bash
 # development
-$ pnpm start
+pnpm start
 
 # watch mode
-$ pnpm dev
+pnpm dev
 
 # production mode
-$ pnpm build
-$ pnpm start:prod
+pnpm build
+pnpm start:prod
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ pnpm test
+pnpm test
 
 # e2e tests
-$ pnpm test:e2e
+pnpm test:e2e
 
 # test coverage
-$ pnpm test:cov
+pnpm test:cov
+pnpm test:e2e-cov
 ```
 
 ## Docker Deployment

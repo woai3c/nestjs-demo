@@ -13,6 +13,7 @@ import {
   TEST_NEW_TOKEN,
   TEST_NEW_USER_PASSWORD,
   TEST_REFRESH_TOKEN,
+  TEST_SUPER_ADMIN,
   TEST_TOKEN,
   TEST_USER_ID,
   TEST_USER_NAME,
@@ -124,7 +125,7 @@ describe('AuthService', () => {
         _id: TEST_USER_ID,
         username: TEST_USER_NAME,
         password: bcrypt.hashSync(TEST_USER_PASSWORD, 10),
-        failedLoginAttempts: 1,
+        failedLoginAttempts: 3,
       }
 
       usersService.findOne.mockResolvedValueOnce(userWithPassword) // Mock findOne return userWithPassword
@@ -151,6 +152,30 @@ describe('AuthService', () => {
       expect(result.userId).toEqual(validUser._id)
       expect(result.username).toEqual(TEST_USER_NAME)
       expect(result.role).toEqual(Role.User)
+    })
+
+    it('should reset failedLoginAttempts and lockUntil if validation is successful', async () => {
+      bcrypt.compareSync = jest.fn().mockReturnValueOnce(true) // Mock bcrypt.compareSync return true
+
+      const validUser = {
+        _id: TEST_USER_ID,
+        username: TEST_USER_NAME,
+        password: bcrypt.hashSync(TEST_USER_PASSWORD, 10),
+        failedLoginAttempts: 2,
+        lockUntil: Date.now() - 1000, // The locking time has expired
+        role: Role.User,
+      }
+
+      usersService.findOne.mockResolvedValueOnce(validUser)
+
+      const result = await authService.validateUser(TEST_USER_NAME, TEST_USER_PASSWORD)
+
+      expect(result.userId).toEqual(validUser._id)
+      expect(result.username).toEqual(TEST_USER_NAME)
+      expect(result.role).toEqual(Role.User)
+      expect(usersService.update).toHaveBeenCalledWith(validUser._id, {
+        $set: { failedLoginAttempts: 0, lockUntil: null },
+      })
     })
   })
 
@@ -334,14 +359,14 @@ describe('AuthService', () => {
 
     it('should successfully register a new user if they do not exist', async () => {
       const usersDto = {
-        username: TEST_USER_NAME,
+        username: TEST_SUPER_ADMIN,
         password: TEST_USER_PASSWORD, // make sure this password matches the regex pattern
       }
 
       usersService.findOne.mockResolvedValueOnce(null) // to simulate user does not exist
       const createdUser = {
         _id: TEST_USER_ID,
-        username: TEST_USER_NAME,
+        username: TEST_SUPER_ADMIN,
         password: bcrypt.hashSync(usersDto.password, 10),
       }
       usersService.create.mockResolvedValueOnce(createdUser)
@@ -351,7 +376,7 @@ describe('AuthService', () => {
       const result = await authService.register(usersDto)
 
       expect(usersService.findOne).toHaveBeenCalledWith({
-        username: TEST_USER_NAME,
+        username: TEST_SUPER_ADMIN,
       })
       expect(usersService.create).toHaveBeenCalledWith({
         ...usersDto,

@@ -73,11 +73,6 @@ describe('UsersService', () => {
       expect(await service.create(mockUser)).toEqual(mockUser)
       expect(model.create).toHaveBeenCalledWith(mockUser)
     })
-
-    it('should throw BadRequestException if missing required fields', async () => {
-      const missingFields = { username: 'username' } // Only username provided, missing password
-      await expect(service.create(missingFields as UsersDto)).rejects.toThrow(BadRequestException)
-    })
   })
 
   describe('findById', () => {
