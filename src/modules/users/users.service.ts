@@ -2,7 +2,7 @@ import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import { Users } from './users.schema'
 import { AssignRoleDto, Role, UpdateUsersDto, UsersDto } from './users.dto'
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRedis } from '@nestjs-modules/ioredis'
 import Redis from 'ioredis'
 import { CustomI18nService } from '@/services/custom-i18n'
@@ -16,10 +16,6 @@ export class UsersService {
   ) {}
 
   async create(usersDto: UsersDto): Promise<Users> {
-    if (!usersDto.password || !usersDto.username) {
-      throw new BadRequestException(this.customI18nService.t('users.missingRequiredPasswordOrUsername'))
-    }
-
     return this.userModel.create(usersDto)
   }
 
