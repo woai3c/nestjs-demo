@@ -16,7 +16,6 @@ services:
       - REDIS_URL=redis
       - REDIS_PORT=6379
     restart: always
-
   mongodb:
     image: mongo
     ports:
@@ -30,3 +29,4 @@ services:
       - '6379:6379'
     volumes:
       - D:/docker-data-map/redis/data:/data
+    command: redis-server --appendonly yes
