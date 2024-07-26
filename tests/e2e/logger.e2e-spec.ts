@@ -5,7 +5,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { AppModule } from '@/app.module'
 import { Test, TestingModule } from '@nestjs/testing'
-import { TEST_USER_NAME, TEST_USER_PASSWORD } from '@tests/constants'
+import { TEST_USER_NAME6, TEST_USER_PASSWORD } from '@tests/constants'
 import { RequestContextMiddleware } from '@/middlewares/request-context'
 import { LoggerService } from '@/services/logger'
 import { ExceptionsFilter } from '@/filters/exceptions-filter'
@@ -44,6 +44,7 @@ describe('Logger (e2e)', () => {
   })
 
   afterEach(async () => {
+    // remove log files
     fs.truncateSync(path.join(process.cwd(), logFile), 0)
     fs.truncateSync(path.join(process.cwd(), errorLogFile), 0)
     process.env.NODE_ENV = 'test'
@@ -74,9 +75,14 @@ describe('Logger (e2e)', () => {
   })
 
   it('should mask sensitive request body', async () => {
+    const { body } = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ username: TEST_USER_NAME6, password: TEST_USER_PASSWORD })
+      .expect(201)
+
     await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ username: TEST_USER_NAME, password: TEST_USER_PASSWORD })
+      .delete('/auth/delete-user')
+      .set('Authorization', `Bearer ${body.access_token}`)
       .expect(200)
 
     const logContent = getContent(logFile)

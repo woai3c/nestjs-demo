@@ -29,7 +29,7 @@ export class LoggerService {
       ],
     })
 
-    if (process.env.NODE_ENV !== 'test') {
+    if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'log-test') {
       this.logger.add(
         new transports.Console({
           format: format.simple(),

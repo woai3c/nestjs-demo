@@ -64,19 +64,20 @@ describe('LoggerService', () => {
     expect(logger.warn).toHaveBeenCalledWith('test warning', undefined)
   })
 
-  it('should add console transport in non-production environments', () => {
+  it('should add console transport in non-test environments', () => {
+    process.env.NODE_ENV = 'production'
     service = new LoggerService()
     expect(transports.Console).toHaveBeenCalledWith({ format: expect.anything() })
   })
 
-  it('should not add console transport in production environment', () => {
-    process.env.NODE_ENV = 'production'
-    expect(logger.add).not.toHaveBeenCalled()
-  })
-
-  it('should add console transport in non-production environments', () => {
-    process.env.NODE_ENV = 'test'
+  it('should add console transport in non-test environments', () => {
     service = new LoggerService()
     expect(logger.add).toHaveBeenCalledWith(expect.anything())
+  })
+
+  it('should not add console transport in test environment', () => {
+    process.env.NODE_ENV = 'test'
+    service = new LoggerService()
+    expect(logger.add).not.toHaveBeenCalled()
   })
 })
