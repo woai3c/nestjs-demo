@@ -19,7 +19,6 @@ export class LoggerMiddleware implements NestMiddleware {
     const requestId = RequestContextMiddleware.getRequestId()
     const ip = req.ip || req.socket.remoteAddress || ''
     const referer = headers.referer || ''
-
     const bodyStr = privatePaths.includes(originalUrl) ? '[PRIVATE]' : JSON.stringify(body)
     const startTime = Date.now()
     const timestamp = new Date().toISOString()
@@ -31,7 +30,11 @@ export class LoggerMiddleware implements NestMiddleware {
     res.on('finish', () => {
       const duration = Date.now() - startTime
       const responseTimestamp = new Date().toISOString()
-      const logLevel = res.statusCode >= 400 ? 'error' : 'info'
+      let logLevel = 'info'
+
+      if (res.statusCode >= 400) {
+        logLevel = 'warn'
+      }
 
       this.loggerService[logLevel](
         `[${responseTimestamp}] [Response] (${requestId}) ${method} ${originalUrl} - Status: ${res.statusCode} - Duration: ${duration}ms`,

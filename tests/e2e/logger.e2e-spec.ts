@@ -12,8 +12,8 @@ import { ExceptionsFilter } from '@/filters/exceptions-filter'
 
 describe('Logger (e2e)', () => {
   let app: INestApplication
-  const logFile = 'test.log'
-  const errorLogFile = 'test-error.log'
+  const logFile = 'logs/test.log'
+  const errorLogFile = 'logs/test-error.log'
 
   beforeEach(async () => {
     process.env.NODE_ENV = 'log-test'
@@ -118,9 +118,10 @@ describe('Logger (e2e)', () => {
 
     const errorLogContent = getContent(errorLogFile)
     const requestId = extractRequestId(errorLogContent)
+
     expect(errorLogContent).toContain(`[Unhandled Exception] (${requestId})`)
     expect(errorLogContent).toContain('Cannot GET /non-existent-endpoint')
-    expect(errorLogContent).toContain('Status: 404')
+    expect(errorLogContent).toContain('"status":404')
   })
 })
 

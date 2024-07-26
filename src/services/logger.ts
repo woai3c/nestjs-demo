@@ -7,8 +7,8 @@ export class LoggerService {
   private logger: Logger
 
   constructor() {
-    const logFile = process.env.NODE_ENV === 'log-test' ? 'test.log' : 'combined.log'
-    const errorLogFile = process.env.NODE_ENV === 'log-test' ? 'test-error.log' : 'error.log'
+    const logFile = process.env.NODE_ENV === 'log-test' ? 'logs/test.log' : 'logs/combined.log'
+    const errorLogFile = process.env.NODE_ENV === 'log-test' ? 'logs/test-error.log' : 'logs/error.log'
 
     this.logger = createLogger({
       level: 'info',

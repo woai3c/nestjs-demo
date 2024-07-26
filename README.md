@@ -90,6 +90,8 @@ services:
       - NEST_CORS_DOMAINS=http://localhost:3001,http://localhost:8080
       - REDIS_URL=redis
       - REDIS_PORT=6379
+    volumes:
+      - D:/docker-data-map/logs:/app/logs
     restart: always
 
   mongodb:
