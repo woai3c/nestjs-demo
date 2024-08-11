@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ExceptionsFilter } from './filters/exceptions-filter'
 import { LoggerService } from '@/services/logger'
 import { RequestContextMiddleware } from './middlewares/request-context'
+import * as apm from 'elastic-apm-node'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -16,6 +17,14 @@ async function bootstrap() {
   app.use(new RequestContextMiddleware().use)
 
   const configService: ConfigService = app.get(ConfigService)
+
+  apm.start({
+    serviceName: configService.get('ELASTIC_APM_SERVICE_NAME'),
+    serverUrl: configService.get('ELASTIC_APM_SERVER_URL'),
+    secretToken: configService.get('ELASTIC_APM_SECRET_TOKEN'),
+    environment: configService.get('NODE_ENV'),
+  })
+
   const isProduction = configService.get('NODE_ENV') === 'production'
 
   if (!isProduction) {
