@@ -4,6 +4,8 @@ import { Role } from './users.dto'
 
 @Schema({ timestamps: true })
 export class Users extends Document {
+  _id: string
+
   @Prop()
   address: string
 

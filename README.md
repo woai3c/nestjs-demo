@@ -4,6 +4,7 @@
 - [v4-i18n](https://github.com/woai3c/nestjs-demo/tree/v4-i18n)
 - [v5-apm](https://github.com/woai3c/nestjs-demo/tree/v5-apm)
 - [v6-global-exception](https://github.com/woai3c/nestjs-demo/tree/v6-global-exception)
+- [v7-multiple-process](https://github.com/woai3c/nestjs-demo/tree/v7-multiple-process)
 
 ## Description
 
@@ -22,6 +23,7 @@ This is a NestJS project that uses the following technology stack:
 - [swagger](https://swagger.io/): A tool for documenting APIs.
 - [nestjs-i18n](https://nestjs-i18n.com/): A library for internationalization.
 - [cls-hooked](https://github.com/jeff-lewis/cls-hooked): A library for managing context in asynchronous operations.
+- [pm2](https://pm2.keymetrics.io/): A process manager for Node.js applications.
 
 ## Features
 
@@ -90,10 +92,10 @@ services:
       - NEST_CORS_DOMAINS=http://localhost:3001,http://localhost:8080
       - REDIS_URL=redis
       - REDIS_PORT=6379
+      - NODE_ENV=production
     volumes:
       - D:/docker-data-map/logs:/app/logs
     restart: always
-
   mongodb:
     image: mongo
     ports:
@@ -107,6 +109,7 @@ services:
       - '6379:6379'
     volumes:
       - D:/docker-data-map/redis/data:/data
+    command: redis-server --appendonly yes
 ```
 
 Then, execute `docker-compose build` and `docker-compose up -d` to deploy the project.

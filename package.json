@@ -1,5 +1,5 @@
 {
-  "name": "nestjs-interview-demo",
+  "name": "nestjs-demo",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -19,7 +19,7 @@
     "test:debug": "cross-env NODE_ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "cross-env NODE_ENV=test jest --config ./tests/e2e/jest-e2e.json",
     "test:e2e-cov": "cross-env NODE_ENV=test jest --config ./tests/e2e/jest-e2e.json --coverage",
-    "prepare": "husky"
+    "prepare": "node scripts/prepare.mjs"
   },
   "lint-staged": {
     "{src,apps,libs,tests}/**/*.{ts,js}": [
@@ -42,6 +42,7 @@
     "class-validator": "^0.14.1",
     "cls-hooked": "^4.2.2",
     "ioredis": "^5.4.1",
+    "mongoose": "^8.6.0",
     "nestjs-i18n": "^10.4.5",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
